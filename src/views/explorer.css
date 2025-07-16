@@ -1,0 +1,345 @@
+/* explorer.css */
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  display: flex;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#sidebar {
+  width: 220px;
+  background: #f9f9f9;
+  border-right: 1px solid #ccc;
+  padding: 15px;
+}
+
+#main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+}
+
+#table-area, #lattice-area {
+  flex: 1;
+  overflow: auto;
+  padding: 15px;
+}
+
+.table-scroll-wrapper {
+  max-height: 400px;
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: white;
+}
+
+.table-container table {
+  min-width: max-content; /* Ensures horizontal scroll if too wide */
+}
+
+
+.panel-area {
+  padding: 15px;
+  margin: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background-color: #f0f0f5;
+  border-left: 4px solid #007bff;
+  font-weight: bold;
+  font-size: 15px;
+  border-radius: 4px;
+}
+
+/* Group control sections inside export/legend panel */
+.control-section {
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.control-section:last-child {
+  border-bottom: none;
+}
+
+/* Add vertical space between elements */
+.control-section label,
+.control-section select,
+.control-section button {
+  display: block;
+  margin-bottom: 6px;
+}
+
+#legend {
+  margin-top: 8px;
+  line-height: 1.6;
+  padding-left: 20px;
+  list-style-type: none;
+}
+
+#legend li span {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+
+/* Ensure inner sections behave properly */
+#top-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button#load-json-file {
+  background-color: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+}
+
+#json-upload-container {
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+#json-upload-flex {
+  display: flex;
+  /*justify-content: space-between;*/
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+select, input[type="file"] {
+  margin-top: 8px;
+}
+
+#file-input-wrapper {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: inline-block;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #fdfdfd;
+}
+
+.description {
+  font-size: 14px;
+  color: #444;
+}
+
+.flex-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+/*
+.fullscreen-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 20px;
+  background: white;
+  z-index: 1000;
+  overflow: auto;
+  border: none;
+  box-shadow: inset 0 0 0 1px #ccc;
+}
+*/
+
+.fullscreen-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 20px;
+  background: white;
+  z-index: 1000;
+  overflow: auto;
+  border: none;
+  box-shadow: inset 0 0 0 1px #ccc;
+}
+
+#labeling-save-container {
+  margin-top: 20px;
+}
+
+#tabs {
+  height: 40px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.tab {
+  margin-right: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+}
+
+#modal {
+  position: fixed;
+  top: 30%;
+  left: 30%;
+  width: 40%;
+  background: #fff;
+  border: 1px solid #666;
+  box-shadow: 0 0 10px #000;
+  padding: 20px;
+  display: none;
+  z-index: 10;
+}
+
+/* Sidebar styled like panel-area */
+.sidebar-section {
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-section h4 {
+  margin-top: 0;
+  font-size: 15px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+  color: #333;
+}
+
+.sidebar-section ul {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.sidebar-section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sidebar-section td {
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+}
+
+#filters, #metrics-container, #legend-container, #shortest-path-info {
+      margin-bottom: 20px;
+    }
+
+#graph-container {
+    width: 100%;
+    height: 600px;
+    border: 1px solid #ddd;
+    background-color: #ffffff;
+    overflow: hidden;     /* ✅ Prevent zoom overflow */
+  position: relative;   /* ✅ Needed for overflow to work properly */
+  }
+
+  #tooltip {
+      position: absolute;
+      display: none;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    #filter-legend-container {
+      display: flex;
+      justify-content: space-between; /* Distribute space evenly */
+      gap: 20px; /* Add space between filters and legend */
+      align-items: flex-start; /* Align content at the top */
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #labeling-save-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px; /* Space between the two dropdowns */
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      width: fit-content;
+    }
+
+    #node-info-panel {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}

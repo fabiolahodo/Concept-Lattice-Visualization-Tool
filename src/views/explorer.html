@@ -1,0 +1,220 @@
+<!-- /src/views/explorer.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Concept Explorer</title>
+
+    <!-- ✅ D3.js from CDN -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- ✅ jsPDF for PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+   <!-- ✅ Style -->
+   <link rel="stylesheet" href="explorer.css" />
+</head>
+<body>
+<!-- === Left Sidebar === -->
+<div id="sidebar">
+
+  <div class="sidebar-section">
+    <h4>Document</h4>
+    <ul>
+      <li>Context
+        <ul>
+          <li>Lattice 1</li>
+          <li>≃ Implications</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-section" id="metrics-container">
+    <h4>Parameters</h4>
+    <table>
+      <tr><td>Compressed</td><td>✓</td></tr>
+      <tr><td>Concepts</td><td><span id="total-concepts">-</span></td></tr>
+      <tr><td>Objects</td><td><span id="total-objects">-</span></td></tr>
+      <tr><td>Attributes</td><td><span id="total-attributes">-</span></td></tr>
+      <tr><td>Lattice Density</td><td><span id="lattice-density">-</span></td></tr>
+    <tr><td>Avg. Stability</td><td><span id="lattice-stability">-</span></td></tr>
+    </table>
+  </div>
+
+   <!-- <div class="sidebar-section" id="metrics-container">
+   Metrics will be dynamically populated here 
+  </div>
+  -->
+
+</div>
+
+<!-- === Right Main Section === -->
+<div id="main">
+  <div id="top-panel">
+    <!-- === Formal Context Panel === -->
+    <div id="table-area" class="panel-area">
+       <div class="panel-header">
+          <span><strong>Formal Context</strong></span>
+          <button>🗖</button>
+        </div>
+    <div>
+      
+      <p class="description">
+        Click the button below to display the formal context corresponding to the uploaded lattice.
+      </p>
+        <button id="show-formal-context" >Show Formal Context</button>
+
+    <div class="table-scroll-wrapper">
+      <div class="table-container" id="table-content"></div>
+    </div>
+    
+    </div>
+
+    <!-- Export -->
+<select id="context-export-dropdown">
+  <option value="">Export Context As...</option>
+  <option value="export-context-csv">CSV</option>
+  <option value="export-context-cxt">CXT</option>
+</select>
+
+</div>
+</div>
+<!-- === Concept Lattice Panel === -->
+<div id="lattice-area" class="panel-area">
+        <div class="panel-header">
+          <span><strong>Concept Lattice</strong></span>
+          <button>🗖</button>
+          </div>
+
+          <!-- Upload and Load Section -->
+<div id="json-upload-container">
+  <div id="json-upload-flex">
+
+    <!-- ✅ Only this box will wrap Choose File + selected file name -->
+      <label for="file-upload"><strong>Select your JSON file:</strong></label>
+    
+      <!-- ✅ Wrap only the input in a box -->
+    <div id="file-input-wrapper"> 
+      <input type="file" id="file-upload" accept=".json" />
+    </div>
+
+    <div>
+      <button id="load-json-file" class="primary-btn">Load JSON File</button>
+    </div>
+
+    <div>
+      <p>
+        If your file matches the
+        <a href="https://pypi.org/project/concepts/" target="_blank">Concepts Python library format</a>,
+        you can convert it to the supported JSON format.
+      </p>
+      <button id="convert-download" class="primary-btn">Convert and Download</button>
+    </div>
+
+  </div>
+</div>
+
+    <div class="panel-content" id="graph-container"></div>
+
+      <!-- Controls for Labeling Mode and Save As -->
+    <div class="control-section" id="labeling-save-container">
+        <label for="labeling-mode"><strong>Labeling Mode:</strong></label>
+        <select id="labeling-mode">
+          <option value="id">ID</option>
+          <option value="full">Full Labeling</option>
+          <option value="reduced">Reduced Labeling</option>
+        </select>
+      
+      
+        <label for="save-as"><strong>Save as:</strong></label>
+        <select id="save-as">
+          <option >Select the format</option>
+          <option value="export-json">JSON</option>
+          <option value="export-png">PNG</option>
+          <option value="export-csv">CSV</option>
+          <option value="export-pdf">PDF</option>
+          <option value="export-slf">SLF</option>
+          </select>
+        </div>
+
+      <div id="filter-legend-container">
+      <!-- Filters Section -->
+      <div id="filters">
+        <h3>Filter Options</h3>
+        <div class="flex-row">
+          <input type="text" id="object-filter" placeholder="Filter by objects (comma-separated)" />
+          <input type="text" id="attribute-filter" placeholder="Filter by attributes (comma-separated)" />
+          <button id="apply-filters">Apply Filters</button>
+        </div>    
+      </div>
+    
+      <!-- Legend Section -->
+      <div id="legend-container">
+        <h3>Legend</h3>
+        <ul id="legend">
+          <li><span style="background-color: orange;"></span> Matches both extent and intent</li>
+          <li><span style="background-color: green;"></span> Matches extent</li>
+          <li><span style="background-color: gray;"></span> Matches intent</li>
+          <li><span style="background-color: blue;"></span> No match</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip"></div>
+
+    <!-- Selected Node Details -->
+      <div class="control-section" id="node-info-panel">
+      <span><strong>Selected Node Info</strong></span>
+      <div class="panel-content" id="selected-node-info">Click a concept in the lattice to view its extent, intent, and other details here.</div>
+    </div>
+
+</div>
+
+<!-- === Bottom Tabs === -->
+  <div id="tabs">
+    <div class="tab">Context Editor</div>
+    <div class="tab">Implication sets</div>
+  </div>
+</div>
+
+<!-- === Implication Confirmation Modal === -->
+<div id="modal">
+    <p><strong>Confirm or reject implication</strong></p>
+    <p>Is it true, that when object has attribute(s) Attr 8, Attr 9, that it also has attribute(s) Attr 1, ..., Attr 7?</p>
+    <div id="modal-buttons">
+      <button onclick="hideModal()">Yes</button>
+      <button onclick="hideModal()">No</button>
+      <button onclick="hideModal()">Stop Attribute Exploration</button>
+    </div>
+</div>
+
+<!-- === JavaScript Logic === -->
+
+ <script>
+    function toggleFullPanel(panelId, button) {
+      const panel = document.getElementById(panelId);
+      const isFullscreen = panel.classList.contains('fullscreen-panel');
+      panel.classList.toggle('fullscreen-panel');
+      button.textContent = isFullscreen ? '🗖' : '🗕';
+    }
+
+    function hideModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+  </script>
+  <!--
+  <script src="../context-editor/generateTable.js"></script>
+  <script type="module" src="../lattice/lattice.js"></script>
+  <script type="module" src="../lattice/metrics.js"></script>
+  <script type="module" src="../features/export.js"></script>
+  -->
+
+<!-- ✅ Main logic -->
+<script type="module" src="../../dist/bundle.js"></script>
+
+
+</body>
+</html>
