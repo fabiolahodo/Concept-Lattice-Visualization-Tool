@@ -6189,7 +6189,7 @@ function setupFileUpload() {
     const loadButton = document.getElementById('load-json-file');
     //const computeButton = document.getElementById('compute-canonical-base');
     //const resultsContainer = document.getElementById('results');
-    const convertButton = document.getElementById("convert-and-download");
+    const convertButton = document.getElementById("convert-download");
 
 
      // Debug: Log what elements exist
