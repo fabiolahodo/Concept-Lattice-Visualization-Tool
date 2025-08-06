@@ -14,6 +14,9 @@
 
    <!-- ✅ Style -->
    <link rel="stylesheet" href="explorer.css" />
+   <link rel="stylesheet" href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css"> 
+   <link rel="stylesheet" href="formalcontext.css">
+   
 </head>
 <body>
 <!-- === Left Sidebar === -->
@@ -53,6 +56,7 @@
 <!-- === Right Main Section === -->
 <div id="main">
   <div id="top-panel">
+
     <!-- === Formal Context Panel === -->
     <div id="table-area" class="panel-area">
        <div class="panel-header">
@@ -62,25 +66,45 @@
     <div>
       
       <p class="description">
-        Click the button below to display the formal context corresponding to the uploaded lattice.
+  You can either upload your own formal context, show it here, or start from a default template.
       </p>
-        <button id="show-formal-context" >Show Formal Context</button>
 
-    <div class="table-scroll-wrapper">
-      <div class="table-container" id="table-content"></div>
-    </div>
-    
-    </div>
+   <!-- File Upload -->
+   <div style="margin-top:10px;">
+   <label for="upload-json"><strong>Upload Formal Context (.json):</strong></label>
+   <input type="file" id="upload-json" accept=".json">
+  </div>
 
-    <!-- Export -->
-<select id="context-export-dropdown">
+
+   <!-- Buttons -->
+   <div class="button-container">
+  <button id="show-formal-context">Show Formal Context</button>
+  <button id="create-formal-context">Create Formal Context</button>
+  <button id="visualize-lattice" class="btn">Visualize Lattice</button>
+  </div>
+
+
+  <!-- Table renders here -->
+  <div class="table-scroll-wrapper" style="margin-top:15px;">
+  <div class="table-container" id="table-content"></div>
+  </div>
+
+  <!-- Table Actions -->
+  <div style="margin-top: 10px;" id="table-actions" class="hidden">
+    <button id="add-row">➕ Add Row</button>
+    <button id="add-column">➕ Add Column</button>
+  </div>
+
+  <!-- Export -->
+  <select id="context-export-dropdown">
   <option value="">Export Context As...</option>
   <option value="export-context-csv">CSV</option>
   <option value="export-context-cxt">CXT</option>
-</select>
+  <option value="export-context-json">JSON</option>
+  </select>
+</div>
 
-</div>
-</div>
+
 <!-- === Concept Lattice Panel === -->
 <div id="lattice-area" class="panel-area">
         <div class="panel-header">
