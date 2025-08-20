@@ -49,6 +49,15 @@ npm run build
 This compiles `src/views/explorer.js` into `dist/bundle.js` using Rollup.
 
 ---
+#### 📝 Notes
+
+📦 Make sure `d3` and `gridjs` are installed.
+
+🔧 Rollup uses `@rollup/plugin-node-resolve` + `@rollup/plugin-commonjs` (already set).
+
+⚠️ Circular dependency warnings from D3 are normal and safe to ignore.
+
+---
 
 #### 3. Start the Electron application
 
@@ -64,9 +73,11 @@ These packages are installed automatically when you run `npm install`.
 
 #### **Runtime Dependencies** (`"dependencies"`)
 
-| Package | Version | Purpose |
-|--------|---------|---------|
-| **`d3`** | ^7.9.0 | A JavaScript library for producing dynamic, interactive data visualizations in web browsers. Used for rendering the concept lattice graph. |
+| Package      | Version | Purpose                                                                 |
+|--------------|---------|-------------------------------------------------------------------------|
+| **`d3`**     | ^7.9.0  | Dynamic, interactive data visualizations. Used for rendering lattices. |
+| **`gridjs`** | ^6.0.0  | Lightweight table library. Used for rendering the formal context.      |
+
 
 ---
 
@@ -107,9 +118,13 @@ npm start
 ```
 
 2. Click the **"Select your JSON file"** button to upload your formal context or lattice data.
+   
+💡 You can also create a formal context directly in the tool — the lattice will be generated automatically.
+
 3. The graph will render inside the main panel.
-4. Interact with nodes (drag, zoom, highlight, etc.).
-5. Use sidebar options to label, export, or explore metrics.
+    - Interact with nodes (drag, zoom, highlight, etc.).
+    - Use sidebar options to explore metrics.
+    - Use the options on the page to label concepts, export data, or switch views.
 
 ---
 
