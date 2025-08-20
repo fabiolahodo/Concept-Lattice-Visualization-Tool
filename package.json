@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "electron": "^37.2.0",
     "rollup": "^4.44.2"
@@ -20,6 +21,7 @@
   "dependencies": {
     "d3": "^7.9.0",
     "express": "^5.1.0",
-    "grid": "^4.10.8"
+    "grid": "^4.10.8",
+    "gridjs": "^6.2.0"
   }
 }
