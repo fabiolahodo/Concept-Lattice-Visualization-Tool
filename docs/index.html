@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lattice.js — Live Demo</title>
+  <style>
+    body { margin:0; font-family: system-ui, sans-serif; }
+    header { padding:12px; border-bottom:1px solid #e5e7eb; }
+    main { height: calc(100vh - 60px); padding:12px; }
+    #graph-container { height:100%; background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; }
+    .toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>lattice.js — Interactive Demo</h1>
+    <div class="toolbar">
+      <input type="file" id="fileInput" accept=".json" />
+      <button id="loadSample">Reload sample</button>
+      <span id="memory-usage" style="margin-left:auto; opacity:.7;"></span>
+    </div>
+  </header>
+  <main><div id="graph-container"></div></main>
+
+<!-- exposes window.lattice -->
+<script src="../dist/lattice.umd.js"></script>
+<script type="module" src="./demo.js"></script>
+
+</body>
+</html>
