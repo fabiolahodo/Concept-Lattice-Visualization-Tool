@@ -85,20 +85,19 @@ npm start
 
 This launches the Electron desktop app and loads the interface from `src/views/explorer.html`.
 
-### Option 2: Ready to Use (Prebuilt Installers) 
-If you don’t want to build from source, simply download the **ready-to-use installers** from the [Releases page](https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool/releases). 
+### Option 2: Ready to Use (Prebuilt Installers)
 
-After downloading, you’ll find the installers in your **Downloads** folder (or wherever your browser saves files). 
+If you don’t want to build from source, simply download the **ready-to-use installers** from the [Releases page](https://github.com/your-username/lattice/releases).
 
-Available for: 
+After downloading, you’ll find the installers in your **Downloads** folder (or wherever your browser saves files).
 
-    - **Windows** → .exe installer 
-    
-    - **Linux** → .AppImage and .deb 
-    
-    - **macOS** → .dmg 
-    
-👉 If you build installers yourself using npm run dist, they will be created in the local **dist/** folder of this project. 
+Available for:
+- **Windows** → `.exe` installer  
+- **Linux** → `.AppImage` and `.deb`  
+- **macOS** → `.dmg`  
+
+👉 If you build installers yourself using `npm run dist`, they will be created in the local **`dist/`** folder of this project.
+
 
 ---
 
