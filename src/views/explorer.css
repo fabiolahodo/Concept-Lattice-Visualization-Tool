@@ -25,7 +25,8 @@ body {
   padding: 10px;
 }
 
-#table-area, #lattice-area {
+#table-area, 
+#lattice-area {
   flex: 1 1 50%;
   overflow: auto;
   padding: 15px;
@@ -41,13 +42,7 @@ body {
   margin-bottom: 10px;
   background-color: white;
 }
-/*
-.table-container table {
-  min-width: max-content; /* Ensures horizontal scroll if too wide 
-}
-*/
 
-/* === Formal Context / Grid.js additions (from formalcontext.css) === */
 
 /* Table container should expand horizontally */
 .table-container {
@@ -84,7 +79,8 @@ body {
 }
 
 /* Rename inputs inside header / first column */
-.rename-object-container { display: flex; align-items: center; }
+.rename-object-container { 
+  display: flex; align-items: center; }
 .rename-object,
 .rename-attribute {
   border: none;
