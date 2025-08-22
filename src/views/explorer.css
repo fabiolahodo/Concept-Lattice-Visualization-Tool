@@ -26,9 +26,10 @@ body {
 }
 
 #table-area, #lattice-area {
-  flex: 1;
+  flex: 1 1 50%;
   overflow: auto;
   padding: 15px;
+  min-height: 320px;
 }
 
 .table-scroll-wrapper {
