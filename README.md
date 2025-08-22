@@ -29,12 +29,26 @@ The library is **not feature-complete** and may have bugs or missing functionali
 
 - [Node.js](https://nodejs.org/) (v18.x or higher recommended)
 - [Git](https://git-scm.com/) (to clone the repository)
+- [Python](https://www.python.org/downloads/) (3.8 or higher) with [pip](https://pip.pypa.io/en/stable/) .
 
-### 🧰 Installation Steps
+Once Python is installed, add the FCA `concepts` library:
+```bash
+pip install concepts
+```
 
-### 🔧 Setup Instructions (Step-by-Step)
+### 🧰 Installation Options
+You can either **run from source** (recommended for developers/researchers) or **download ready-to-use installers** (recommended for end-users).
 
-#### 1. Install dependencies
+---
+
+### Option 1: Run from Source (Repository) 
+
+#### 1. Clone the repository
+```bash
+git clone https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool
+cd Concept-Lattice-Visualization-Tool
+```
+#### 2. Install dependencies
 
 ```bash
 npm install
@@ -44,7 +58,7 @@ This installs all Node.js and Electron modules defined in the `package.json` fil
 
 ---
 
-#### 2. Build the JavaScript bundle (front-end logic for the visualization)
+#### 3. Build the JavaScript bundle (front-end logic for the visualization)
 
 ```bash
 npm run build
@@ -55,7 +69,7 @@ This compiles `src/views/explorer.js` into `dist/bundle.js` using Rollup.
 ---
 #### 📝 Notes
 
-📦 Make sure `d3` and `gridjs` are installed.
+📦 Make sure `d3` and `gridjs` are installed by `npm install`.
 
 🔧 Rollup uses `@rollup/plugin-node-resolve` + `@rollup/plugin-commonjs` (already set).
 
@@ -63,13 +77,29 @@ This compiles `src/views/explorer.js` into `dist/bundle.js` using Rollup.
 
 ---
 
-#### 3. Start the Electron application
+#### 4. Start the Electron application
 
 ```bash
 npm start
 ```
 
 This launches the Electron desktop app and loads the interface from `src/views/explorer.html`.
+
+### Option 2: Ready to Use (Prebuilt Installers)
+
+If you don’t want to build from source, simply download the **ready-to-use installers** from the [Releases page](https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool/releases).
+
+After downloading, you’ll find the installers in your **Downloads** folder (or wherever your browser saves files).
+
+Available for:
+- **Windows** → `.exe` installer  
+- **Linux** → `.AppImage` and `.deb`  
+- **macOS** → `.dmg`  
+
+👉 If you build installers yourself using `npm run dist`, they will be created in the local **`dist/`** folder of this project.
+
+
+---
 
 ### 📦 Installed Packages
 
@@ -92,6 +122,7 @@ These packages are installed automatically when you run `npm install`.
 | **`electron`** | ^37.2.0 | A framework for creating native desktop applications using web technologies like JavaScript, HTML, and CSS. |
 | **`rollup`** | ^4.44.2 | A module bundler for JavaScript. Used to compile your ESModule-based source code into a single browser-ready bundle. |
 | **`@rollup/plugin-node-resolve`** | ^16.0.1 | A Rollup plugin that allows Rollup to find and bundle external modules from `node_modules`. Essential for ESModule resolution. |
+| **`electron-builder`** | ^24.x | Creates installers for Win/Linux/macOS. |
 
 ### 📁 Project Structure
 
