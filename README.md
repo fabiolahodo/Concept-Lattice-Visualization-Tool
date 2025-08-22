@@ -69,7 +69,7 @@ This compiles `src/views/explorer.js` into `dist/bundle.js` using Rollup.
 ---
 #### 📝 Notes
 
-📦 Make sure `d3` and `gridjs` are installed.
+📦 Make sure `d3` and `gridjs` are installed by `npm install`.
 
 🔧 Rollup uses `@rollup/plugin-node-resolve` + `@rollup/plugin-commonjs` (already set).
 
@@ -87,7 +87,7 @@ This launches the Electron desktop app and loads the interface from `src/views/e
 
 ### Option 2: Ready to Use (Prebuilt Installers)
 
-If you don’t want to build from source, simply download the **ready-to-use installers** from the [Releases page](https://github.com/your-username/lattice/releases).
+If you don’t want to build from source, simply download the **ready-to-use installers** from the [Releases page](https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool/releases).
 
 After downloading, you’ll find the installers in your **Downloads** folder (or wherever your browser saves files).
 
@@ -122,6 +122,7 @@ These packages are installed automatically when you run `npm install`.
 | **`electron`** | ^37.2.0 | A framework for creating native desktop applications using web technologies like JavaScript, HTML, and CSS. |
 | **`rollup`** | ^4.44.2 | A module bundler for JavaScript. Used to compile your ESModule-based source code into a single browser-ready bundle. |
 | **`@rollup/plugin-node-resolve`** | ^16.0.1 | A Rollup plugin that allows Rollup to find and bundle external modules from `node_modules`. Essential for ESModule resolution. |
+| **`electron-builder`** | ^24.x | Creates installers for Win/Linux/macOS. |
 
 ### 📁 Project Structure
 
