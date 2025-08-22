@@ -103,14 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Default table data and columns
 let defaultData = [
-    ["Object 1", true, false, true],
-    ["Object 2", false, true, false],
-    ["Object 3", true, true, false],
-    ["Object 4", true, false, true],
-    ["Object 5", false, true, false],
-    ["Object 6", true, true, false],
+    ["boy", false, false, true, true],
+    ["girl", false, true, true, false],
+    ["man", true, false, false, true],
+    ["woman", true, true, false, false],
 ];
-let defaultColumns = ["Object", "Attribute 1", "Attribute 2", "Attribute 3"];
+let defaultColumns = ["Object", "adult", "female", "juvenile", "male"];
 
 let data = [];
 let columns = [];
