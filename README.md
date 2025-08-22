@@ -29,7 +29,7 @@ The library is **not feature-complete** and may have bugs or missing functionali
 
 - [Node.js](https://nodejs.org/) (v18.x or higher recommended)
 - [Git](https://git-scm.com/) (to clone the repository)
-- [Python](https://www.python.org/downloads/) (3.8 or higher) with [pip](https://pip.pypa.io/en/stable/) . (to install the FCA concepts library)
+- [Python](https://www.python.org/downloads/) (3.8 or higher) with [pip](https://pip.pypa.io/en/stable/) .
 
 Once Python is installed, add the FCA `concepts` library:
 ```bash
