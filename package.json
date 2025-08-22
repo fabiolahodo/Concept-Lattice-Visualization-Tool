@@ -1,21 +1,31 @@
 {
   "name": "concept-lattice-visualization_framework",
   "version": "1.0.0",
+  "description": "Interactive concept lattice visualization tool (Electron + D3).",
   "type": "module",
   "main": "main.js",
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool.git"
+  },
+  "homepage": "https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool#readme",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "dist": "electron-builder"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
     "rollup": "^4.44.2"
   },
   "dependencies": {
@@ -23,5 +33,20 @@
     "express": "^5.1.0",
     "grid": "^4.10.8",
     "gridjs": "^6.2.0"
+  },
+  "build": {
+    "appId": "com.lattice.app",
+    "productName": "Lattice",
+    "files": [
+      "dist/**/*",
+      "src/**/*",
+      "main.js",
+      "package.json"
+    ],
+    
+    "mac": { "target": "dmg" },
+    "linux": { "target": ["AppImage", "deb"] },
+    "win": { "target": "nsis" },
+    "artifactName": "Lattice-${version}-${os}-${arch}.${ext}"
   }
 }
