@@ -29,12 +29,26 @@ The library is **not feature-complete** and may have bugs or missing functionali
 
 - [Node.js](https://nodejs.org/) (v18.x or higher recommended)
 - [Git](https://git-scm.com/) (to clone the repository)
+- [Python](https://www.python.org/downloads/) (3.8 or higher) with [pip](https://pip.pypa.io/en/stable/) . (to install the FCA concepts library)
 
-### 🧰 Installation Steps
+Once Python is installed, add the FCA `concepts` library:
+```bash
+pip install concepts
+```
 
-### 🔧 Setup Instructions (Step-by-Step)
+### 🧰 Installation Options
+You can either **run from source** (recommended for developers/researchers) or **download ready-to-use installers** (recommended for end-users).
 
-#### 1. Install dependencies
+---
+
+### Option 1: Run from Source (Repository) 
+
+#### 1. Clone the repository
+```bash
+git clone https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool
+cd Concept-Lattice-Visualization-Tool
+```
+#### 2. Install dependencies
 
 ```bash
 npm install
@@ -44,7 +58,7 @@ This installs all Node.js and Electron modules defined in the `package.json` fil
 
 ---
 
-#### 2. Build the JavaScript bundle (front-end logic for the visualization)
+#### 3. Build the JavaScript bundle (front-end logic for the visualization)
 
 ```bash
 npm run build
@@ -63,13 +77,30 @@ This compiles `src/views/explorer.js` into `dist/bundle.js` using Rollup.
 
 ---
 
-#### 3. Start the Electron application
+#### 4. Start the Electron application
 
 ```bash
 npm start
 ```
 
 This launches the Electron desktop app and loads the interface from `src/views/explorer.html`.
+
+### Option 2: Ready to Use (Prebuilt Installers) 
+If you don’t want to build from source, simply download the **ready-to-use installers** from the [Releases page](https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool/releases). 
+
+After downloading, you’ll find the installers in your **Downloads** folder (or wherever your browser saves files). 
+
+Available for: 
+
+    - **Windows** → .exe installer 
+    
+    - **Linux** → .AppImage and .deb 
+    
+    - **macOS** → .dmg 
+    
+👉 If you build installers yourself using npm run dist, they will be created in the local **dist/** folder of this project. 
+
+---
 
 ### 📦 Installed Packages
 
