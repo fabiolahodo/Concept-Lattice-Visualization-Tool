@@ -6,8 +6,16 @@ import { setupFilterControls } from '../features/setupFilters.js';
 import { createLattice } from '../lattice/lattice.js';
 import { calculateMetrics } from '../lattice/metrics.js';
 
+import { initContextEditor } from '../context-editor/formalContext.js';
+/*
 import { Grid, html, h } from "gridjs";
 import { parseSerializedData } from '../lattice/latticeParser.js';
+*/
+
+function setText(sel, value) {
+  const el = document.querySelector(sel);
+  if (el) el.textContent = String(value);
+}
 
 // === Utility: Update metrics in sidebar ===
 function updateSidebarMetrics(metrics) {
@@ -16,6 +24,18 @@ function updateSidebarMetrics(metrics) {
   document.getElementById('total-attributes').textContent = metrics.totalAttributes;
   document.getElementById('lattice-density').textContent = metrics.density;
   document.getElementById('lattice-stability').textContent = metrics.averageStability;
+}
+
+// Small helper used in two places below
+function renderGraph(graphData) {
+  const container = document.getElementById('graph-container');
+  container.innerHTML = '';
+  const width = container.offsetWidth || 1000;
+  const height = container.offsetHeight || 600;
+
+  createLattice(graphData, { container: '#graph-container', width, height });
+  const metrics = calculateMetrics(graphData);
+  updateSidebarMetrics(metrics);
 }
 
 // === Wait until the DOM is ready ===
@@ -32,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Handle Load JSON button click
+  // Handle Load JSON button click (precomputed lattice JSON)
   document.getElementById('load-json-file')?.addEventListener('click', () => {
     const fileInput = document.getElementById('file-upload');
     const file = fileInput?.files[0];
@@ -97,11 +117,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+
+
 /*FORMAL CONTEXT SECTION JS CODE*/
 
 // --- Grid.js ---
 
 // Default table data and columns
+/*
 let defaultData = [
     ["boy", false, false, true, true],
     ["girl", false, true, true, false],
@@ -450,5 +473,23 @@ document.getElementById("visualize-lattice").addEventListener("click", async () 
     console.error(error);
   }
 });
+*/
 
+initContextEditor({
+    tableContainer : '#table-content',
+    actionsBar     : '#table-actions',
+    uploadInput    : '#upload-json',
+    showBtn        : '#show-formal-context',
+    createBtn      : '#create-formal-context',
+    addRowBtn      : '#add-row',
+    addColBtn      : '#add-column',
+    exportDropdown : '#context-export-dropdown',
+    visualizeBtn   : '#visualize-lattice',
+
+    // When the backend returns a computed lattice from the current formal context:
+    onGraphReady   : (graphData) => {
+      renderGraph(graphData);
+    }
+  });
+  
 });
