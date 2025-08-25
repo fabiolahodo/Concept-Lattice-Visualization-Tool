@@ -4,7 +4,7 @@
 // Import necessary dependencies
 import * as d3 from 'd3';
 import { GRAPH_CONFIG } from './config.js';
-import { findShortestPath } from './lattice.js';
+//import { findShortestPath } from './lattice.js';
 import { updateNodes } from './rendering.js';
 import { calculateMetrics } from './metrics.js';
 
@@ -270,7 +270,7 @@ export function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
 
     // ** Second Click:Shortest Path Selection**
     //selectedNodes.push(clickedNode.id);
-
+    /*
     if (selectedNodes.length === 2) {
       //const path = findShortestPath(graphData, selectedNodes[0], selectedNodes[1]);
       const [sourceId, targetId] = selectedNodes;
@@ -356,7 +356,10 @@ export function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
   d3.select('#shortest-path-display').html('No path found between the selected nodes.');
 }
 
-  }});
+  }
+*/
+
+});
 
   // **Hover Tooltip**
   nodeGroup

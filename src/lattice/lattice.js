@@ -303,7 +303,7 @@ adjustNodePositions(layers, width, GRAPH_CONFIG.dimensions.padding);
   addInteractivity(svg, graphData);
 
   // Add node-specific interactivity (hover, click, shortest path, etc.)
-  addNodeInteractivity(nodeGroup, linkGroup, graphData, updateLinks);
+  //addNodeInteractivity(nodeGroup, linkGroup, graphData, updateLinks);
 
  // Dynamically center the graph
  setTimeout(() => {
@@ -343,6 +343,7 @@ function updateMetricsInDOM(metrics) {
  * @param {string} endNodeId - ID of the ending node.
  * @returns {Array} - The shortest path as an array of node IDs, or an empty array if no path exists.
  */
+/*
 export function findShortestPath(graphData, startNodeId, endNodeId) {
   const adjacencyList = new Map();
 
@@ -379,7 +380,7 @@ export function findShortestPath(graphData, startNodeId, endNodeId) {
   // Return an empty array if no path exists
   return [];
 }
-
+*/
 /**
  * Filters the lattice graph data based on the provided filter criteria.
  * 
