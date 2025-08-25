@@ -3884,7 +3884,7 @@ function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
 
     // ** Second Click:Shortest Path Selection**
     //selectedNodes.push(clickedNode.id);
-
+    /*
     if (selectedNodes.length === 2) {
       //const path = findShortestPath(graphData, selectedNodes[0], selectedNodes[1]);
       const [sourceId, targetId] = selectedNodes;
@@ -3893,7 +3893,7 @@ function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
 
     if (!path || path.length === 0) {
       alert('No path found between the selected nodes.');
-      select('#shortest-path-display').html('No path found between the selected nodes.');
+      d3.select('#shortest-path-display').html('No path found between the selected nodes.');
       selectedNodes = [];
       return;
     }
@@ -3933,10 +3933,10 @@ function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
     updateLinks(graphData);
     updateNodes(graphData);
 
-    selectAll("circle")
+    d3.selectAll("circle")
       .attr("fill", d => path.includes(d.id) ? "orange" : GRAPH_CONFIG.node.color);
 
-    selectAll(".link")
+    d3.selectAll(".link")
       .attr("stroke", d => {
         const sourceId = String(d.source.id ?? d.source);
         const targetId = String(d.target.id ?? d.target);
@@ -3956,7 +3956,7 @@ function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
           : GRAPH_CONFIG.link.thickness;
       });
 
-    select('#shortest-path-display').html(`
+    d3.select('#shortest-path-display').html(`
       Shortest path between <strong>${pathContext.from}</strong> and <strong>${pathContext.to}</strong>: 
       ${pathContext.fullPath.join(' → ')} <br>
       ${pathContext.fullPath.map(formatNode).join(' → ')}
@@ -3967,10 +3967,13 @@ function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
 
 } else {
   alert('No path found between the selected nodes.');
-  select('#shortest-path-display').html('No path found between the selected nodes.');
+  d3.select('#shortest-path-display').html('No path found between the selected nodes.');
 }
 
-  }});
+  }
+*/
+
+});
 
   // **Hover Tooltip**
   nodeGroup
@@ -5938,7 +5941,7 @@ adjustNodePositions(layers, width, GRAPH_CONFIG.dimensions.padding);
   addInteractivity(svg, graphData);
 
   // Add node-specific interactivity (hover, click, shortest path, etc.)
-  addNodeInteractivity(nodeGroup, linkGroup, graphData);
+  //addNodeInteractivity(nodeGroup, linkGroup, graphData, updateLinks);
 
  // Dynamically center the graph
  setTimeout(() => {
@@ -5978,7 +5981,8 @@ function updateMetricsInDOM(metrics) {
  * @param {string} endNodeId - ID of the ending node.
  * @returns {Array} - The shortest path as an array of node IDs, or an empty array if no path exists.
  */
-function findShortestPath(graphData, startNodeId, endNodeId) {
+/*
+export function findShortestPath(graphData, startNodeId, endNodeId) {
   const adjacencyList = new Map();
 
   // Build adjacency list
@@ -6014,7 +6018,7 @@ function findShortestPath(graphData, startNodeId, endNodeId) {
   // Return an empty array if no path exists
   return [];
 }
-
+*/
 /**
  * Filters the lattice graph data based on the provided filter criteria.
  * 
