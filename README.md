@@ -162,6 +162,79 @@ npm start
     - Use the options on the page to label concepts, export data, or switch views.
 
 ---
+### 📄 JSON File Format
+
+The tool accepts **JSON files** that describe either:
+- a **formal context** (objects, attributes, and incidence relation), or  
+- a **concept lattice** (concepts with their IDs, extents/intents label and links).  
+
+---
+
+#### 1. Formal Context JSON
+```bash
+json
+{
+  "objects": ["adult", "female", "juvenile", "male"],
+  "attributes": ["boy", "girl", "man", "woman"],
+  "context": [
+    [false, false, true, true],
+    [false, true, true, false],
+    [true, false, false, true],
+    [true, true, false, false],
+  ]
+}
+```
+- **`objects`**: list of object names.  
+- **`attributes`**: list of attribute names.  
+- **`incidence`**: list of `[object, attribute]` pairs where the relation holds.  
+
+💡 When you load this, the tool automatically computes the **concept lattice**.
+
+---
+
+#### 2. Concept Lattice JSON
+``` bash
+json
+{
+    "nodes": [
+        { "id": "1", "label": "Extent\n{girl, woman, boy, man}\nIntent{}", "level": 1 },
+        { "id": "2", "label": "Extent\n{girl, woman}\nIntent{female}", "level": 2 },
+        { "id": "3", "label": "Extent\n{boy, man}\nIntent{male}", "level": 2 },
+        { "id": "4", "label": "Extent\n{girl, boy}\nIntent{juvenile}", "level": 2 },
+        { "id": "5", "label": "Extent\n{woman, man}\nIntent{adult}", "level": 2 },
+        { "id": "6", "label": "Extent\n{girl}\nIntent{female, juvenile}", "level": 3 },
+        { "id": "7", "label": "Extent\n{woman}\nIntent{female, adult}", "level": 3 },
+        { "id": "8", "label": "Extent\n{boy}\nIntent{male, juvenile}", "level": 3 },
+        { "id": "9", "label": "Extent\n{man}\nIntent{male, adult}", "level": 3 },
+        { "id": "10", "label": "Extent\n{}\nIntent{female, juvenile, adult, male}", "level": 4 }
+    ],
+    "links": [
+        { "source": "1", "target": "2" },
+        { "source": "1", "target": "3" },
+        { "source": "1", "target": "4" },
+        { "source": "1", "target": "5" },
+        { "source": "2", "target": "6" },
+        { "source": "2", "target": "7" },
+        { "source": "3", "target": "8" },
+        { "source": "3", "target": "9" },
+        { "source": "4", "target": "6" },
+        { "source": "4", "target": "8" },
+        { "source": "5", "target": "7" },
+        { "source": "5", "target": "9" },
+        { "source": "6", "target": "10" },
+        { "source": "7", "target": "10" },
+        { "source": "8", "target": "10" },
+        { "source": "9", "target": "10" }
+    ]
+}
+
+```
+- **`concepts`**: each concept has an **extent** (objects) and an **intent** (attributes).  
+- **`links`**: edges between concepts (Hasse diagram order).  
+
+💡 If you already computed the lattice with another tool (e.g., Python **`concepts`** library), you can export it into this JSON format and load it directly.
+
+---
 
 ### 🛠 Building for Development
 
