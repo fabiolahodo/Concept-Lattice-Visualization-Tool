@@ -6383,6 +6383,104 @@ function t(t,n){for(var e=0;e<n.length;e++){var r=n[e];r.enumerable=r.enumerable
  * @param {string} opts.visualizeBtn
  * @param {(graphData:Object)=>void} opts.onGraphReady
  */
+
+// ------------------ Parsers ------------------
+
+function normalizeCell(v) {
+  if (v == null) return false;
+  const s = String(v).trim();
+  if (s === "" || s === "." || s === "0" || /^false$/i.test(s) || /^no$/i.test(s)) return false;
+  return true; // treat "X", "1", "true", "yes" as true
+}
+
+async function parseCSVFile(file) {
+  const text = await file.text();
+  const rows = text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => line.split(",").map(x => x.trim()));
+
+  if (rows.length < 2) throw new Error("CSV must have a header row and at least one data row.");
+  const attributes = rows[0].slice(1);
+  const objects = rows.slice(1).map(r => r[0]);
+  const matrix = rows.slice(1).map(r => r.slice(1).map(normalizeCell));
+  return { objects, attributes, matrix };
+}
+
+async function parseXLSXFile(file) {
+  const data = await file.arrayBuffer();
+  const wb = window.XLSX.read(data, { type: "array" });
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const rows = window.XLSX.utils.sheet_to_json(sheet, { header: 1 }).map(r => (Array.isArray(r) ? r : []));
+  if (rows.length < 2) throw new Error("XLSX must have a header row and at least one data row.");
+  const attributes = (rows[0] || []).slice(1).map(c => (c ?? "").toString());
+  const objects = rows.slice(1).map(r => (r[0] ?? "").toString());
+  const matrix = rows.slice(1).map(r => attributes.map((_, j) => normalizeCell(r.slice(1)[j])));
+  return { objects, attributes, matrix };
+}
+
+async function parseCXTFile(file) {
+  const text = await file.text();
+
+  // DO NOT filter out blank lines; they are meaningful in .cxt
+  const lines = text.split(/\r?\n/).map(l => l.replace(/\r/g, "")); // keep empties
+
+  let idx = 0;
+
+  // header (usually "B")
+  (lines[idx++] ?? "").trim();
+
+  // context name: may be empty line
+  (lines[idx++] ?? ""); // keep as-is; can be ""
+
+  // counts
+  let objCount = parseInt((lines[idx++] ?? "").trim(), 10);
+  let attrCount = parseInt((lines[idx++] ?? "").trim(), 10);
+  if (isNaN(objCount) || isNaN(attrCount)) {
+    throw new Error("Invalid CXT header (object/attribute counts).");
+  }
+
+  // optional blank separator before object names
+  if (((lines[idx] ?? "").trim()) === "") idx++;
+
+  // read object names (skip accidental extra blanks)
+  const objects = [];
+  for (let i = 0; i < objCount; i++) {
+    let s = (lines[idx++] ?? "");
+    while (s.trim() === "" && idx < lines.length) s = (lines[idx++] ?? "");
+    objects.push(s.trim());
+  }
+
+  // read attribute names (skip accidental extra blanks)
+  const attributes = [];
+  for (let j = 0; j < attrCount; j++) {
+    let s = (lines[idx++] ?? "");
+    while (s.trim() === "" && idx < lines.length) s = (lines[idx++] ?? "");
+    attributes.push(s.trim());
+  }
+
+  // optional blank separator before incidence matrix
+  if (((lines[idx] ?? "").trim()) === "") idx++;
+
+  // incidence rows: exactly attrCount chars per row; skip stray blanks
+  const matrix = [];
+  for (let r = 0; r < objCount; r++) {
+    let row = (lines[idx++] ?? "");
+    while (row.trim() === "" && idx < lines.length) row = (lines[idx++] ?? "");
+    row = row.trim();
+
+    if (row.length !== attrCount) {
+      throw new Error(`CXT row ${r} length ${row.length} != ${attrCount}`);
+    }
+    matrix.push([...row].map(c => (c === "X" || c === "x" ? true : false)));
+  }
+
+  return { objects, attributes, matrix };
+}
+
+// ------------------ Editor Init ------------------
+
 function initContextEditor(opts = {}) {
   const {
     tableContainer = "#table-content",
@@ -6397,7 +6495,7 @@ function initContextEditor(opts = {}) {
     onGraphReady = () => {}
   } = opts;
 
-  // --- Demo defaults ---
+  // Demo defaults
   let defaultData = [
     ["boy", false, false, true, true],
     ["girl", false, true, true, false],
@@ -6411,10 +6509,13 @@ function initContextEditor(opts = {}) {
   let columns = [];
   let gridInstance = null;
 
-  // uploaded (lazy)
+  // uploaded
   let uploadedData = null;
   let uploadedColumns = null;
+  let uploadedGraph = null;     // if user uploads a lattice JSON
+  let uploadedContext = null;   // if user uploads a context
 
+  // -------- Grid.js table helpers --------
   function initTable(d, c, opts2 = {}) {
     data = JSON.parse(JSON.stringify(d));
     columns = JSON.parse(JSON.stringify(c));
@@ -6457,10 +6558,7 @@ function initContextEditor(opts = {}) {
 
   function renderCheckbox(value, rowIndex, colIndex) {
     if (colIndex === 0) return renderObjectName(value, rowIndex);
-    return G(`
-      <input type="checkbox" ${value ? "checked" : ""} 
-             data-row="${rowIndex}" data-col="${colIndex}" />
-    `);
+    return G(`<input type="checkbox" ${value ? "checked" : ""} data-row="${rowIndex}" data-col="${colIndex}" />`);
   }
 
   function generateGridData() {
@@ -6538,47 +6636,74 @@ function initContextEditor(opts = {}) {
     }
   }
 
-  // --- Upload context (two shapes supported) ---
+  // -------- Upload handling --------
   const uploadEl = document.querySelector(uploadInput);
   if (uploadEl) {
-    uploadEl.addEventListener("change", (event) => {
-      const input = event.target;
-      const file = input && input.files && input.files[0];
+    uploadEl.addEventListener("change", async (event) => {
+      const file = event.target?.files?.[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const imported = JSON.parse(String(e.target.result));
-
-          if (imported.objects && imported.properties && imported.context) {
-            // Shape A
-            uploadedColumns = ["Object", ...imported.properties];
-            uploadedData = imported.objects.map((obj, rowIdx) => ([
-              obj,
-              ...imported.context[rowIdx].map(v => v === true || v === "true" || v === 1)
-            ]));
-          } else if (Array.isArray(imported.data) && Array.isArray(imported.columns)) {
-            // Shape B
-            uploadedColumns = imported.columns.slice();
-            uploadedData = imported.data.map(row => ([
-              row[0],
-              ...row.slice(1).map(v => v === true || v === "true" || v === 1)
-            ]));
-          } else {
-            alert("Invalid JSON format! Expected {objects, properties, context} or {data, columns}.");
-            return;
-          }
-          alert("✅ Formal context uploaded. Click 'Show Formal Context' to view.");
-        } catch (err) {
-          alert("Error parsing JSON: " + err.message);
+      const name = (file.name || "").toLowerCase();
+      try {
+        // CSV
+        if (name.endsWith(".csv")) {
+          const { objects, attributes, matrix } = await parseCSVFile(file);
+          uploadedColumns = ["Object", ...attributes];
+          uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
+          uploadedContext = { objects, properties: attributes, context: matrix };
+          uploadedGraph = null;
+          alert("✅ CSV context loaded. Show or visualize it.");
+          return;
         }
-      };
-      reader.readAsText(file);
+        // XLSX
+        if (name.endsWith(".xlsx")) {
+          const { objects, attributes, matrix } = await parseXLSXFile(file);
+          uploadedColumns = ["Object", ...attributes];
+          uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
+          uploadedContext = { objects, properties: attributes, context: matrix };
+          uploadedGraph = null;
+          alert("✅ XLSX context loaded. Show or visualize it.");
+          return;
+        }
+        // CXT
+        if (name.endsWith(".cxt")) {
+          const { objects, attributes, matrix } = await parseCXTFile(file);
+          uploadedColumns = ["Object", ...attributes];
+          uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
+          uploadedContext = { objects, properties: attributes, context: matrix };
+          uploadedGraph = null;
+          alert("✅ CXT context loaded. Show or visualize it.");
+          return;
+        }
+        // JSON fallback
+        const text = await file.text();
+        const imported = JSON.parse(text);
+        if (imported.nodes && imported.links) {
+          uploadedGraph = imported;
+          uploadedContext = null;
+          alert("✅ Lattice JSON loaded. Click 'Visualize Lattice'.");
+        } else if (imported.objects && imported.properties && imported.context) {
+          uploadedColumns = ["Object", ...imported.properties];
+          uploadedData = imported.objects.map((obj, rowIdx) => ([obj, ...imported.context[rowIdx].map(normalizeCell)]));
+          uploadedContext = { objects: imported.objects, properties: imported.properties, context: imported.context };
+          uploadedGraph = null;
+          alert("✅ Formal context JSON loaded. Show or visualize it.");
+        } else if (Array.isArray(imported.data) && Array.isArray(imported.columns)) {
+          uploadedColumns = imported.columns.slice();
+          uploadedData = imported.data.map(row => [row[0], ...row.slice(1).map(normalizeCell)]);
+          uploadedContext = { objects: imported.data.map(r => r[0]), properties: imported.columns.slice(1), context: imported.data.map(r => r.slice(1)) };
+          uploadedGraph = null;
+          alert("✅ Formal context JSON loaded. Show or visualize it.");
+        } else {
+          alert("Invalid JSON format!");
+        }
+      } catch (err) {
+        alert("Error parsing file: " + err.message);
+      }
     });
   }
 
-  // --- Show / Create buttons ---
+  // -------- Show / Create --------
   const showBtnEl = document.querySelector(showBtn);
   if (showBtnEl) {
     showBtnEl.addEventListener("click", () => {
@@ -6597,14 +6722,12 @@ function initContextEditor(opts = {}) {
     });
   }
 
-  // --- Row/col actions (delegation) ---
+  // -------- Row/col actions --------
   document.addEventListener("click", (event) => {
     const el = event.target;
     if (!(el instanceof Element)) return;
-
     if (el.id === stripHash(addRowBtn)) addRow();
     if (el.id === stripHash(addColBtn)) addColumn();
-
     if (el.classList.contains("delete-row")) {
       const rowIndex = Number(el.getAttribute("data-row"));
       data.splice(rowIndex, 1);
@@ -6619,15 +6742,14 @@ function initContextEditor(opts = {}) {
   document.addEventListener("keydown", (event) => {
     const el = event.target;
     if (!(el instanceof Element)) return;
-
     if (el.classList.contains("rename-object") && event.key === "Enter") {
       const rowIndex = Number(el.getAttribute("data-row"));
-      data[rowIndex][0] = /** @type {HTMLInputElement} */(el).value;
+      data[rowIndex][0] = el.value;
       updateTableData();
     }
     if (el.classList.contains("rename-attribute") && event.key === "Enter") {
       const colIndex = Number(el.getAttribute("data-col"));
-      columns[colIndex] = /** @type {HTMLInputElement} */(el).value;
+      columns[colIndex] = el.value;
       updateTableData();
     }
   });
@@ -6638,31 +6760,27 @@ function initContextEditor(opts = {}) {
     if (el.matches('input[type="checkbox"]')) {
       const rowIndex = Number(el.getAttribute("data-row"));
       const colIndex = Number(el.getAttribute("data-col"));
-      const checked = /** @type {HTMLInputElement} */(el).checked;
+      const checked = el.checked;
       data[rowIndex][colIndex] = checked;
     }
   });
 
-  // --- Export dropdown ---
+  // -------- Export --------
   const exportEl = document.querySelector(exportDropdown);
   if (exportEl) {
     exportEl.addEventListener("change", (event) => {
-      const value = event.target && event.target.value;
+      const value = event.target?.value;
       if (!value) return;
-
       const { objects, properties, contextMatrix } = currentContext();
-
       if (value === "export-context-json") {
         const serialized = { objects, properties, context: contextMatrix };
         downloadBlob(JSON.stringify(serialized, null, 2), "formal_context.json", "application/json");
       }
-
       if (value === "export-context-csv") {
         const header = columns.join(",");
         const rows = data.map(row => row.join(",")).join("\n");
         downloadBlob(header + "\n" + rows, "formal_context.csv", "text/csv");
       }
-
       if (value === "export-context-cxt") {
         const lines = [];
         lines.push("B");
@@ -6675,19 +6793,22 @@ function initContextEditor(opts = {}) {
         contextMatrix.forEach(row => lines.push(row.map(v => (v ? "X" : ".")).join("")));
         downloadBlob(lines.join("\n"), "formal_context.cxt", "text/plain");
       }
-
       event.target.value = "";
     });
   }
 
-  // --- Visualize Lattice ---
+  // -------- Visualize --------
   const visBtnEl = document.querySelector(visualizeBtn);
   if (visBtnEl) {
     visBtnEl.addEventListener("click", async () => {
-      const { objects, properties, contextMatrix } = currentContext();
-      const payload = { objects, properties, context: contextMatrix };
-
       try {
+        if (uploadedGraph) {
+          // directly visualize a lattice JSON
+          onGraphReady(uploadedGraph);
+          return;
+        }
+        const { objects, properties, contextMatrix } = currentContext();
+        const payload = { objects, properties, context: contextMatrix };
         const response = await fetch("http://localhost:3000/compute-lattice", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -6699,12 +6820,11 @@ function initContextEditor(opts = {}) {
         onGraphReady(graphData);
       } catch (err) {
         alert("Lattice computation failed: " + err.message);
-        console.error(err);
       }
     });
   }
 
-  // --- helpers ---
+  // -------- helpers --------
   function currentContext() {
     const objects = data.map(row => row[0]);
     const properties = columns.slice(1);
@@ -6723,12 +6843,9 @@ function initContextEditor(opts = {}) {
   }
 
   function stripHash(sel) {
-    return sel && sel.charAt(0) === "#"
-      ? sel.slice(1)
-      : sel;
+    return sel && sel.charAt(0) === "#" ? sel.slice(1) : sel;
   }
 
-  // small public API if you need it later
   return {
     getContext: () => currentContext(),
     setContext: ({ objects, properties, context }) => {
