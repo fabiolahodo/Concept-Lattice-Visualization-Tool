@@ -32,7 +32,7 @@ Dispatch.prototype = dispatch.prototype = {
 
     // If no callback was specified, return the callback of the given type and name.
     if (arguments.length < 2) {
-      while (++i < n) if ((t = (typename = T[i]).type) && (t = get$1(_[t], typename.name))) return t;
+      while (++i < n) if ((t = (typename = T[i]).type) && (t = get$2(_[t], typename.name))) return t;
       return;
     }
 
@@ -40,8 +40,8 @@ Dispatch.prototype = dispatch.prototype = {
     // Otherwise, if a null callback was specified, remove callbacks of the given name.
     if (callback != null && typeof callback !== "function") throw new Error("invalid callback: " + callback);
     while (++i < n) {
-      if (t = (typename = T[i]).type) _[t] = set$1(_[t], typename.name, callback);
-      else if (callback == null) for (t in _) _[t] = set$1(_[t], typename.name, null);
+      if (t = (typename = T[i]).type) _[t] = set$2(_[t], typename.name, callback);
+      else if (callback == null) for (t in _) _[t] = set$2(_[t], typename.name, null);
     }
 
     return this;
@@ -62,7 +62,7 @@ Dispatch.prototype = dispatch.prototype = {
   }
 };
 
-function get$1(type, name) {
+function get$2(type, name) {
   for (var i = 0, n = type.length, c; i < n; ++i) {
     if ((c = type[i]).name === name) {
       return c.value;
@@ -70,7 +70,7 @@ function get$1(type, name) {
   }
 }
 
-function set$1(type, name, callback) {
+function set$2(type, name, callback) {
   for (var i = 0, n = type.length; i < n; ++i) {
     if (type[i].name === name) {
       type[i] = noop, type = type.slice(0, i).concat(type.slice(i + 1));
@@ -2145,19 +2145,19 @@ function schedule(node, name, id, index, group, timing) {
   });
 }
 
-function init(node, id) {
-  var schedule = get(node, id);
+function init$1(node, id) {
+  var schedule = get$1(node, id);
   if (schedule.state > CREATED) throw new Error("too late; already scheduled");
   return schedule;
 }
 
-function set(node, id) {
-  var schedule = get(node, id);
+function set$1(node, id) {
+  var schedule = get$1(node, id);
   if (schedule.state > STARTED) throw new Error("too late; already running");
   return schedule;
 }
 
-function get(node, id) {
+function get$1(node, id) {
   var schedule = node.__transition;
   if (!schedule || !(schedule = schedule[id])) throw new Error("transition not found");
   return schedule;
@@ -2298,7 +2298,7 @@ function selection_interrupt(name) {
 function tweenRemove(id, name) {
   var tween0, tween1;
   return function() {
-    var schedule = set(this, id),
+    var schedule = set$1(this, id),
         tween = schedule.tween;
 
     // If this node shared tween with the previous node,
@@ -2323,7 +2323,7 @@ function tweenFunction(id, name, value) {
   var tween0, tween1;
   if (typeof value !== "function") throw new Error;
   return function() {
-    var schedule = set(this, id),
+    var schedule = set$1(this, id),
         tween = schedule.tween;
 
     // If this node shared tween with the previous node,
@@ -2350,7 +2350,7 @@ function transition_tween(name, value) {
   name += "";
 
   if (arguments.length < 2) {
-    var tween = get(this.node(), id).tween;
+    var tween = get$1(this.node(), id).tween;
     for (var i = 0, n = tween.length, t; i < n; ++i) {
       if ((t = tween[i]).name === name) {
         return t.value;
@@ -2366,12 +2366,12 @@ function tweenValue(transition, name, value) {
   var id = transition._id;
 
   transition.each(function() {
-    var schedule = set(this, id);
+    var schedule = set$1(this, id);
     (schedule.value || (schedule.value = {}))[name] = value.apply(this, arguments);
   });
 
   return function(node) {
-    return get(node, id).value[name];
+    return get$1(node, id).value[name];
   };
 }
 
@@ -2502,13 +2502,13 @@ function transition_attrTween(name, value) {
 
 function delayFunction(id, value) {
   return function() {
-    init(this, id).delay = +value.apply(this, arguments);
+    init$1(this, id).delay = +value.apply(this, arguments);
   };
 }
 
 function delayConstant(id, value) {
   return value = +value, function() {
-    init(this, id).delay = value;
+    init$1(this, id).delay = value;
   };
 }
 
@@ -2519,18 +2519,18 @@ function transition_delay(value) {
       ? this.each((typeof value === "function"
           ? delayFunction
           : delayConstant)(id, value))
-      : get(this.node(), id).delay;
+      : get$1(this.node(), id).delay;
 }
 
 function durationFunction(id, value) {
   return function() {
-    set(this, id).duration = +value.apply(this, arguments);
+    set$1(this, id).duration = +value.apply(this, arguments);
   };
 }
 
 function durationConstant(id, value) {
   return value = +value, function() {
-    set(this, id).duration = value;
+    set$1(this, id).duration = value;
   };
 }
 
@@ -2541,13 +2541,13 @@ function transition_duration(value) {
       ? this.each((typeof value === "function"
           ? durationFunction
           : durationConstant)(id, value))
-      : get(this.node(), id).duration;
+      : get$1(this.node(), id).duration;
 }
 
 function easeConstant(id, value) {
   if (typeof value !== "function") throw new Error;
   return function() {
-    set(this, id).ease = value;
+    set$1(this, id).ease = value;
   };
 }
 
@@ -2556,14 +2556,14 @@ function transition_ease(value) {
 
   return arguments.length
       ? this.each(easeConstant(id, value))
-      : get(this.node(), id).ease;
+      : get$1(this.node(), id).ease;
 }
 
 function easeVarying(id, value) {
   return function() {
     var v = value.apply(this, arguments);
     if (typeof v !== "function") throw new Error;
-    set(this, id).ease = v;
+    set$1(this, id).ease = v;
   };
 }
 
@@ -2613,7 +2613,7 @@ function start(name) {
 }
 
 function onFunction(id, name, listener) {
-  var on0, on1, sit = start(name) ? init : set;
+  var on0, on1, sit = start(name) ? init$1 : set$1;
   return function() {
     var schedule = sit(this, id),
         on = schedule.on;
@@ -2631,7 +2631,7 @@ function transition_on(name, listener) {
   var id = this._id;
 
   return arguments.length < 2
-      ? get(this.node(), id).on.on(name)
+      ? get$1(this.node(), id).on.on(name)
       : this.each(onFunction(id, name, listener));
 }
 
@@ -2658,7 +2658,7 @@ function transition_select(select) {
       if ((node = group[i]) && (subnode = select.call(node, node.__data__, i, group))) {
         if ("__data__" in node) subnode.__data__ = node.__data__;
         subgroup[i] = subnode;
-        schedule(subgroup[i], name, id, i, subgroup, get(node, id));
+        schedule(subgroup[i], name, id, i, subgroup, get$1(node, id));
       }
     }
   }
@@ -2675,7 +2675,7 @@ function transition_selectAll(select) {
   for (var groups = this._groups, m = groups.length, subgroups = [], parents = [], j = 0; j < m; ++j) {
     for (var group = groups[j], n = group.length, node, i = 0; i < n; ++i) {
       if (node = group[i]) {
-        for (var children = select.call(node, node.__data__, i, group), child, inherit = get(node, id), k = 0, l = children.length; k < l; ++k) {
+        for (var children = select.call(node, node.__data__, i, group), child, inherit = get$1(node, id), k = 0, l = children.length; k < l; ++k) {
           if (child = children[k]) {
             schedule(child, name, id, k, children, inherit);
           }
@@ -2744,7 +2744,7 @@ function styleFunction(name, interpolate, value) {
 function styleMaybeRemove(id, name) {
   var on0, on1, listener0, key = "style." + name, event = "end." + key, remove;
   return function() {
-    var schedule = set(this, id),
+    var schedule = set$1(this, id),
         on = schedule.on,
         listener = schedule.value[key] == null ? remove || (remove = styleRemove(name)) : undefined;
 
@@ -2847,7 +2847,7 @@ function transition_transition() {
   for (var groups = this._groups, m = groups.length, j = 0; j < m; ++j) {
     for (var group = groups[j], n = group.length, node, i = 0; i < n; ++i) {
       if (node = group[i]) {
-        var inherit = get(node, id0);
+        var inherit = get$1(node, id0);
         schedule(node, name, id1, i, group, {
           time: inherit.time + inherit.delay + inherit.duration,
           delay: 0,
@@ -2868,7 +2868,7 @@ function transition_end() {
         end = {value: function() { if (--size === 0) resolve(); }};
 
     that.each(function() {
-      var schedule = set(this, id),
+      var schedule = set$1(this, id),
           on = schedule.on;
 
       // If this node shared a dispatch with the previous node,
@@ -6365,26 +6365,613 @@ convertButton.addEventListener("click", () => {
   });
 }
 
+// Minimal store for the context editor.
+// Keeps the table state centralized and easy to test.
+
+let _data = [];    // rows: [objectName, ...booleans]
+let _columns = []; // ["Object", ...attributes]
+
+function init({ data = [], columns = [] } = {}) {
+  _data = JSON.parse(JSON.stringify(data));
+  _columns = JSON.parse(JSON.stringify(columns));
+}
+
+function get() {
+  return { data: JSON.parse(JSON.stringify(_data)), columns: JSON.parse(JSON.stringify(_columns)) };
+}
+
+function set({ data, columns }) {
+  if (Array.isArray(data)) _data = JSON.parse(JSON.stringify(data));
+  if (Array.isArray(columns)) _columns = JSON.parse(JSON.stringify(columns));
+}
+
+function currentContext() {
+  const objects = _data.map(row => row[0]);
+  const properties = _columns.slice(1);
+  const contextMatrix = _data.map(row => row.slice(1));
+  return { objects, properties, contextMatrix };
+}
+
 function t(t,n){for(var e=0;e<n.length;e++){var r=n[e];r.enumerable=r.enumerable||false,r.configurable=true,"value"in r&&(r.writable=true),Object.defineProperty(t,"symbol"==typeof(o=function(t,n){if("object"!=typeof t||null===t)return t;var e=t[Symbol.toPrimitive];if(void 0!==e){var r=e.call(t,"string");if("object"!=typeof r)return r;throw new TypeError("@@toPrimitive must return a primitive value.")}return String(t)}(r.key))?o:String(o),r);}var o;}function n(n,e,r){return e&&t(n.prototype,e),Object.defineProperty(n,"prototype",{writable:false}),n}function e(){return e=Object.assign?Object.assign.bind():function(t){for(var n=1;n<arguments.length;n++){var e=arguments[n];for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&(t[r]=e[r]);}return t},e.apply(this,arguments)}function r(t,n){t.prototype=Object.create(n.prototype),t.prototype.constructor=t,o(t,n);}function o(t,n){return o=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,n){return t.__proto__=n,t},o(t,n)}function i(t){if(void 0===t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return t}function u(t,n){(null==n||n>t.length)&&(n=t.length);for(var e=0,r=new Array(n);e<n;e++)r[e]=t[e];return r}function s(t,n){var e="undefined"!=typeof Symbol&&t[Symbol.iterator]||t["@@iterator"];if(e)return (e=e.call(t)).next.bind(e);if(Array.isArray(t)||(e=function(t,n){if(t){if("string"==typeof t)return u(t,n);var e=Object.prototype.toString.call(t).slice(8,-1);return "Object"===e&&t.constructor&&(e=t.constructor.name),"Map"===e||"Set"===e?Array.from(t):"Arguments"===e||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(e)?u(t,n):void 0}}(t))||n){e&&(t=e);var r=0;return function(){return r>=t.length?{done:true}:{done:false,value:t[r++]}}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var a;!function(t){t[t.Init=0]="Init",t[t.Loading=1]="Loading",t[t.Loaded=2]="Loaded",t[t.Rendered=3]="Rendered",t[t.Error=4]="Error";}(a||(a={}));var l,c,f,p,d,h,_,m={},v=[],y=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;function g(t,n){for(var e in n)t[e]=n[e];return t}function b(t){var n=t.parentNode;n&&n.removeChild(t);}function w(t,n,e){var r,o,i,u={};for(i in n)"key"==i?r=n[i]:"ref"==i?o=n[i]:u[i]=n[i];if(arguments.length>2&&(u.children=arguments.length>3?l.call(arguments,2):e),"function"==typeof t&&null!=t.defaultProps)for(i in t.defaultProps) void 0===u[i]&&(u[i]=t.defaultProps[i]);return x(t,u,r,o,null)}function x(t,n,e,r,o){var i={type:t,props:n,key:e,ref:r,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,__h:null,constructor:void 0,__v:null==o?++f:o};return null==o&&null!=c.vnode&&c.vnode(i),i}function S(t){return t.children}function N(t,n){this.props=t,this.context=n;}function P(t,n){if(null==n)return t.__?P(t.__,t.__.__k.indexOf(t)+1):null;for(var e;n<t.__k.length;n++)if(null!=(e=t.__k[n])&&null!=e.__e)return e.__e;return "function"==typeof t.type?P(t):null}function C(t){var n,e;if(null!=(t=t.__)&&null!=t.__c){for(t.__e=t.__c.base=null,n=0;n<t.__k.length;n++)if(null!=(e=t.__k[n])&&null!=e.__e){t.__e=t.__c.base=e.__e;break}return C(t)}}function E(t){(!t.__d&&(t.__d=true)&&d.push(t)&&!I.__r++||h!==c.debounceRendering)&&((h=c.debounceRendering)||setTimeout)(I);}function I(){for(var t;I.__r=d.length;)t=d.sort(function(t,n){return t.__v.__b-n.__v.__b}),d=[],t.some(function(t){var n,e,r,o,i,u;t.__d&&(i=(o=(n=t).__v).__e,(u=n.__P)&&(e=[],(r=g({},o)).__v=o.__v+1,M(u,o,r,n.__n,void 0!==u.ownerSVGElement,null!=o.__h?[i]:null,e,null==i?P(o):i,o.__h),F(e,o),o.__e!=i&&C(o)));});}function T(t,n,e,r,o,i,u,s,a,l){var c,f,p,d,h,_,y,g=r&&r.__k||v,b=g.length;for(e.__k=[],c=0;c<n.length;c++)if(null!=(d=e.__k[c]=null==(d=n[c])||"boolean"==typeof d?null:"string"==typeof d||"number"==typeof d||"bigint"==typeof d?x(null,d,null,null,d):Array.isArray(d)?x(S,{children:d},null,null,null):d.__b>0?x(d.type,d.props,d.key,d.ref?d.ref:null,d.__v):d)){if(d.__=e,d.__b=e.__b+1,null===(p=g[c])||p&&d.key==p.key&&d.type===p.type)g[c]=void 0;else for(f=0;f<b;f++){if((p=g[f])&&d.key==p.key&&d.type===p.type){g[f]=void 0;break}p=null;}M(t,d,p=p||m,o,i,u,s,a,l),h=d.__e,(f=d.ref)&&p.ref!=f&&(y||(y=[]),p.ref&&y.push(p.ref,null,d),y.push(f,d.__c||h,d)),null!=h?(null==_&&(_=h),"function"==typeof d.type&&d.__k===p.__k?d.__d=a=L(d,a,t):a=A(t,d,p,g,h,a),"function"==typeof e.type&&(e.__d=a)):a&&p.__e==a&&a.parentNode!=t&&(a=P(p));}for(e.__e=_,c=b;c--;)null!=g[c]&&W(g[c],g[c]);if(y)for(c=0;c<y.length;c++)U(y[c],y[++c],y[++c]);}function L(t,n,e){for(var r,o=t.__k,i=0;o&&i<o.length;i++)(r=o[i])&&(r.__=t,n="function"==typeof r.type?L(r,n,e):A(e,r,r,o,r.__e,n));return n}function A(t,n,e,r,o,i){var u,s,a;if(void 0!==n.__d)u=n.__d,n.__d=void 0;else if(null==e||o!=i||null==o.parentNode)t:if(null==i||i.parentNode!==t)t.appendChild(o),u=null;else {for(s=i,a=0;(s=s.nextSibling)&&a<r.length;a+=1)if(s==o)break t;t.insertBefore(o,i),u=i;}return void 0!==u?u:o.nextSibling}function O(t,n,e){"-"===n[0]?t.setProperty(n,e):t[n]=null==e?"":"number"!=typeof e||y.test(n)?e:e+"px";}function H(t,n,e,r,o){var i;t:if("style"===n)if("string"==typeof e)t.style.cssText=e;else {if("string"==typeof r&&(t.style.cssText=r=""),r)for(n in r)e&&n in e||O(t.style,n,"");if(e)for(n in e)r&&e[n]===r[n]||O(t.style,n,e[n]);}else if("o"===n[0]&&"n"===n[1])i=n!==(n=n.replace(/Capture$/,"")),n=n.toLowerCase()in t?n.toLowerCase().slice(2):n.slice(2),t.l||(t.l={}),t.l[n+i]=e,e?r||t.addEventListener(n,i?D:j,i):t.removeEventListener(n,i?D:j,i);else if("dangerouslySetInnerHTML"!==n){if(o)n=n.replace(/xlink(H|:h)/,"h").replace(/sName$/,"s");else if("href"!==n&&"list"!==n&&"form"!==n&&"tabIndex"!==n&&"download"!==n&&n in t)try{t[n]=null==e?"":e;break t}catch(t){}"function"==typeof e||(null==e||false===e&&-1==n.indexOf("-")?t.removeAttribute(n):t.setAttribute(n,e));}}function j(t){this.l[t.type+false](c.event?c.event(t):t);}function D(t){this.l[t.type+true](c.event?c.event(t):t);}function M(t,n,e,r,o,i,u,s,a){var l,f,p,d,h,_,m,v,y,b,w,x,k,P,C,E=n.type;if(void 0!==n.constructor)return null;null!=e.__h&&(a=e.__h,s=n.__e=e.__e,n.__h=null,i=[s]),(l=c.__b)&&l(n);try{t:if("function"==typeof E){if(v=n.props,y=(l=E.contextType)&&r[l.__c],b=l?y?y.props.value:l.__:r,e.__c?m=(f=n.__c=e.__c).__=f.__E:("prototype"in E&&E.prototype.render?n.__c=f=new E(v,b):(n.__c=f=new N(v,b),f.constructor=E,f.render=B),y&&y.sub(f),f.props=v,f.state||(f.state={}),f.context=b,f.__n=r,p=f.__d=!0,f.__h=[],f._sb=[]),null==f.__s&&(f.__s=f.state),null!=E.getDerivedStateFromProps&&(f.__s==f.state&&(f.__s=g({},f.__s)),g(f.__s,E.getDerivedStateFromProps(v,f.__s))),d=f.props,h=f.state,p)null==E.getDerivedStateFromProps&&null!=f.componentWillMount&&f.componentWillMount(),null!=f.componentDidMount&&f.__h.push(f.componentDidMount);else {if(null==E.getDerivedStateFromProps&&v!==d&&null!=f.componentWillReceiveProps&&f.componentWillReceiveProps(v,b),!f.__e&&null!=f.shouldComponentUpdate&&!1===f.shouldComponentUpdate(v,f.__s,b)||n.__v===e.__v){for(f.props=v,f.state=f.__s,n.__v!==e.__v&&(f.__d=!1),f.__v=n,n.__e=e.__e,n.__k=e.__k,n.__k.forEach(function(t){t&&(t.__=n);}),w=0;w<f._sb.length;w++)f.__h.push(f._sb[w]);f._sb=[],f.__h.length&&u.push(f);break t}null!=f.componentWillUpdate&&f.componentWillUpdate(v,f.__s,b),null!=f.componentDidUpdate&&f.__h.push(function(){f.componentDidUpdate(d,h,_);});}if(f.context=b,f.props=v,f.__v=n,f.__P=t,x=c.__r,k=0,"prototype"in E&&E.prototype.render){for(f.state=f.__s,f.__d=!1,x&&x(n),l=f.render(f.props,f.state,f.context),P=0;P<f._sb.length;P++)f.__h.push(f._sb[P]);f._sb=[];}else do{f.__d=!1,x&&x(n),l=f.render(f.props,f.state,f.context),f.state=f.__s;}while(f.__d&&++k<25);f.state=f.__s,null!=f.getChildContext&&(r=g(g({},r),f.getChildContext())),p||null==f.getSnapshotBeforeUpdate||(_=f.getSnapshotBeforeUpdate(d,h)),C=null!=l&&l.type===S&&null==l.key?l.props.children:l,T(t,Array.isArray(C)?C:[C],n,e,r,o,i,u,s,a),f.base=n.__e,n.__h=null,f.__h.length&&u.push(f),m&&(f.__E=f.__=null),f.__e=!1;}else null==i&&n.__v===e.__v?(n.__k=e.__k,n.__e=e.__e):n.__e=R(e.__e,n,e,r,o,i,u,a);(l=c.diffed)&&l(n);}catch(t){n.__v=null,(a||null!=i)&&(n.__e=s,n.__h=!!a,i[i.indexOf(s)]=null),c.__e(t,n,e);}}function F(t,n){c.__c&&c.__c(n,t),t.some(function(n){try{t=n.__h,n.__h=[],t.some(function(t){t.call(n);});}catch(t){c.__e(t,n.__v);}});}function R(t,n,e,r,o,i,u,s){var a,c,f,p=e.props,d=n.props,h=n.type,_=0;if("svg"===h&&(o=true),null!=i)for(;_<i.length;_++)if((a=i[_])&&"setAttribute"in a==!!h&&(h?a.localName===h:3===a.nodeType)){t=a,i[_]=null;break}if(null==t){if(null===h)return document.createTextNode(d);t=o?document.createElementNS("http://www.w3.org/2000/svg",h):document.createElement(h,d.is&&d),i=null,s=false;}if(null===h)p===d||s&&t.data===d||(t.data=d);else {if(i=i&&l.call(t.childNodes),c=(p=e.props||m).dangerouslySetInnerHTML,f=d.dangerouslySetInnerHTML,!s){if(null!=i)for(p={},_=0;_<t.attributes.length;_++)p[t.attributes[_].name]=t.attributes[_].value;(f||c)&&(f&&(c&&f.__html==c.__html||f.__html===t.innerHTML)||(t.innerHTML=f&&f.__html||""));}if(function(t,n,e,r,o){var i;for(i in e)"children"===i||"key"===i||i in n||H(t,i,null,e[i],r);for(i in n)o&&"function"!=typeof n[i]||"children"===i||"key"===i||"value"===i||"checked"===i||e[i]===n[i]||H(t,i,n[i],e[i],r);}(t,d,p,o,s),f)n.__k=[];else if(_=n.props.children,T(t,Array.isArray(_)?_:[_],n,e,r,o&&"foreignObject"!==h,i,u,i?i[0]:e.__k&&P(e,0),s),null!=i)for(_=i.length;_--;)null!=i[_]&&b(i[_]);s||("value"in d&&void 0!==(_=d.value)&&(_!==t.value||"progress"===h&&!_||"option"===h&&_!==p.value)&&H(t,"value",_,p.value,false),"checked"in d&&void 0!==(_=d.checked)&&_!==t.checked&&H(t,"checked",_,p.checked,false));}return t}function U(t,n,e){try{"function"==typeof t?t(n):t.current=n;}catch(t){c.__e(t,e);}}function W(t,n,e){var r,o;if(c.unmount&&c.unmount(t),(r=t.ref)&&(r.current&&r.current!==t.__e||U(r,null,n)),null!=(r=t.__c)){if(r.componentWillUnmount)try{r.componentWillUnmount();}catch(t){c.__e(t,n);}r.base=r.__P=null,t.__c=void 0;}if(r=t.__k)for(o=0;o<r.length;o++)r[o]&&W(r[o],n,e||"function"!=typeof t.type);e||null==t.__e||b(t.__e),t.__=t.__e=t.__d=void 0;}function B(t,n,e){return this.constructor(t,e)}function q(t,n,e){var r,o,i;c.__&&c.__(t,n),o=(r="function"=="undefined")?null:n.__k,i=[],M(n,t=(n).__k=w(S,null,[t]),o||m,m,void 0!==n.ownerSVGElement,o?null:n.firstChild?l.call(n.childNodes):null,i,o?o.__e:n.firstChild,r),F(i,t);}function z(){return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(t){var n=16*Math.random()|0;return ("x"==t?n:3&n|8).toString(16)})}l=v.slice,c={__e:function(t,n,e,r){for(var o,i,u;n=n.__;)if((o=n.__c)&&!o.__)try{if((i=o.constructor)&&null!=i.getDerivedStateFromError&&(o.setState(i.getDerivedStateFromError(t)),u=o.__d),null!=o.componentDidCatch&&(o.componentDidCatch(t,r||{}),u=o.__d),u)return o.__E=o}catch(n){t=n;}throw t}},f=0,p=function(t){return null!=t&&void 0===t.constructor},N.prototype.setState=function(t,n){var e;e=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=g({},this.state),"function"==typeof t&&(t=t(g({},e),this.props)),t&&g(e,t),null!=t&&this.__v&&(n&&this._sb.push(n),E(this));},N.prototype.forceUpdate=function(t){this.__v&&(this.__e=true,t&&this.__h.push(t),E(this));},N.prototype.render=S,d=[],I.__r=0,_=0;var V=/*#__PURE__*/function(){function t(t){this._id=void 0,this._id=t||z();}return n(t,[{key:"id",get:function(){return this._id}}]),t}();function $(t){return w(t.parentElement||"span",{dangerouslySetInnerHTML:{__html:t.content}})}function G(t,n){return w($,{content:t,parentElement:n})}var K,X=/*#__PURE__*/function(t){function n(n){var e;return (e=t.call(this)||this).data=void 0,e.update(n),e}r(n,t);var e=n.prototype;return e.cast=function(t){return t instanceof HTMLElement?G(t.outerHTML):t},e.update=function(t){return this.data=this.cast(t),this},n}(V),Z=/*#__PURE__*/function(t){function e(n){var e;return (e=t.call(this)||this)._cells=void 0,e.cells=n||[],e}r(e,t);var o=e.prototype;return o.cell=function(t){return this._cells[t]},o.toArray=function(){return this.cells.map(function(t){return t.data})},e.fromCells=function(t){return new e(t.map(function(t){return new X(t.data)}))},n(e,[{key:"cells",get:function(){return this._cells},set:function(t){this._cells=t;}},{key:"length",get:function(){return this.cells.length}}]),e}(V),J=/*#__PURE__*/function(t){function e(n){var e;return (e=t.call(this)||this)._rows=void 0,e._length=void 0,e.rows=n instanceof Array?n:n instanceof Z?[n]:[],e}return r(e,t),e.prototype.toArray=function(){return this.rows.map(function(t){return t.toArray()})},e.fromRows=function(t){return new e(t.map(function(t){return Z.fromCells(t.cells)}))},e.fromArray=function(t){return new e((t=function(t){return !t[0]||t[0]instanceof Array?t:[t]}(t)).map(function(t){return new Z(t.map(function(t){return new X(t)}))}))},n(e,[{key:"rows",get:function(){return this._rows},set:function(t){this._rows=t;}},{key:"length",get:function(){return this._length||this.rows.length},set:function(t){this._length=t;}}]),e}(V),Q=/*#__PURE__*/function(){function t(){this.callbacks=void 0;}var n=t.prototype;return n.init=function(t){this.callbacks||(this.callbacks={}),t&&!this.callbacks[t]&&(this.callbacks[t]=[]);},n.listeners=function(){return this.callbacks},n.on=function(t,n){return this.init(t),this.callbacks[t].push(n),this},n.off=function(t,n){var e=t;return this.init(),this.callbacks[e]&&0!==this.callbacks[e].length?(this.callbacks[e]=this.callbacks[e].filter(function(t){return t!=n}),this):this},n.emit=function(t){var n=arguments,e=t;return this.init(e),this.callbacks[e].length>0&&(this.callbacks[e].forEach(function(t){return t.apply(void 0,[].slice.call(n,1))}),true)},t}();function Y(t,n){if(typeof t!=typeof n)return  false;if(null===t&&null===n)return  true;if("object"!=typeof t)return t===n;if(Array.isArray(t)&&Array.isArray(n)){if(t.length!==n.length)return  false;for(var e=0;e<t.length;e++)if(!Y(t[e],n[e]))return  false;return  true}if(t.hasOwnProperty("constructor")&&n.hasOwnProperty("constructor")&&t.hasOwnProperty("props")&&n.hasOwnProperty("props")&&t.hasOwnProperty("key")&&n.hasOwnProperty("key")&&t.hasOwnProperty("ref")&&n.hasOwnProperty("ref")&&t.hasOwnProperty("type")&&n.hasOwnProperty("type"))return Y(t.props,n.props);var r=Object.keys(t),o=Object.keys(n);if(r.length!==o.length)return  false;for(var i=0,u=r;i<u.length;i++){var s=u[i];if(!n.hasOwnProperty(s)||!Y(t[s],n[s]))return  false}return  true}!function(t){t[t.Initiator=0]="Initiator",t[t.ServerFilter=1]="ServerFilter",t[t.ServerSort=2]="ServerSort",t[t.ServerLimit=3]="ServerLimit",t[t.Extractor=4]="Extractor",t[t.Transformer=5]="Transformer",t[t.Filter=6]="Filter",t[t.Sort=7]="Sort",t[t.Limit=8]="Limit";}(K||(K={}));var tt=/*#__PURE__*/function(t){function o(n){var e;return (e=t.call(this)||this).id=void 0,e._props=void 0,e._props={},e.id=z(),n&&e.setProps(n),e}r(o,t);var i=o.prototype;return i.process=function(){var t=[].slice.call(arguments);this.validateProps instanceof Function&&this.validateProps.apply(this,t),this.emit.apply(this,["beforeProcess"].concat(t));var n=this._process.apply(this,t);return this.emit.apply(this,["afterProcess"].concat(t)),n},i.setProps=function(t){var n=e({},this._props,t);return Y(n,this._props)||(this._props=n,this.emit("propsUpdated",this)),this},n(o,[{key:"props",get:function(){return this._props}}]),o}(Q),nt=/*#__PURE__*/function(t){function e(){return t.apply(this,arguments)||this}return r(e,t),e.prototype._process=function(t){return this.props.keyword?(n=String(this.props.keyword).trim(),e=this.props.columns,r=this.props.ignoreHiddenColumns,o=t,i=this.props.selector,n=n.replace(/[-[\]{}()*+?.,\\^$|#\s]/g,"\\$&"),new J(o.rows.filter(function(t,o){return t.cells.some(function(t,u){if(!t)return  false;if(r&&e&&e[u]&&"object"==typeof e[u]&&e[u].hidden)return  false;var s="";if("function"==typeof i)s=i(t.data,o,u);else if("object"==typeof t.data){var a=t.data;a&&a.props&&a.props.content&&(s=a.props.content);}else s=String(t.data);return new RegExp(n,"gi").test(s)})}))):t;var n,e,r,o,i;},n(e,[{key:"type",get:function(){return K.Filter}}]),e}(tt);function et(){var t="gridjs";return ""+t+[].slice.call(arguments).reduce(function(t,n){return t+"-"+n},"")}function rt(){return [].slice.call(arguments).map(function(t){return t?t.toString():""}).filter(function(t){return t}).reduce(function(t,n){return (t||"")+" "+n},"").trim()}var ot,it,ut,st,at=/*#__PURE__*/function(t){function o(){return t.apply(this,arguments)||this}return r(o,t),o.prototype._process=function(t){if(!this.props.keyword)return t;var n={};return this.props.url&&(n.url=this.props.url(t.url,this.props.keyword)),this.props.body&&(n.body=this.props.body(t.body,this.props.keyword)),e({},t,n)},n(o,[{key:"type",get:function(){return K.ServerFilter}}]),o}(tt),lt=0,ct=[],ft=[],pt=c.__b,dt=c.__r,ht=c.diffed,_t=c.__c,mt=c.unmount;function vt(t,n){c.__h&&c.__h(it,t,lt||n),lt=0;var e=it.__H||(it.__H={__:[],__h:[]});return t>=e.__.length&&e.__.push({__V:ft}),e.__[t]}function yt(t){return lt=1,function(t,n,e){var r=vt(ot++,2);if(r.t=t,!r.__c&&(r.__=[Et(void 0,n),function(t){var n=r.__N?r.__N[0]:r.__[0],e=r.t(n,t);n!==e&&(r.__N=[e,r.__[1]],r.__c.setState({}));}],r.__c=it,!it.u)){it.u=true;var o=it.shouldComponentUpdate;it.shouldComponentUpdate=function(t,n,e){if(!r.__c.__H)return  true;var i=r.__c.__H.__.filter(function(t){return t.__c});if(i.every(function(t){return !t.__N}))return !o||o.call(this,t,n,e);var u=false;return i.forEach(function(t){if(t.__N){var n=t.__[0];t.__=t.__N,t.__N=void 0,n!==t.__[0]&&(u=true);}}),!(!u&&r.__c.props===t)&&(!o||o.call(this,t,n,e))};}return r.__N||r.__}(Et,t)}function gt(t,n){var e=vt(ot++,3);!c.__s&&Ct(e.__H,n)&&(e.__=t,e.i=n,it.__H.__h.push(e));}function bt(t){return lt=5,wt(function(){return {current:t}},[])}function wt(t,n){var e=vt(ot++,7);return Ct(e.__H,n)?(e.__V=t(),e.i=n,e.__h=t,e.__V):e.__}function xt(){for(var t;t=ct.shift();)if(t.__P&&t.__H)try{t.__H.__h.forEach(Nt),t.__H.__h.forEach(Pt),t.__H.__h=[];}catch(n){t.__H.__h=[],c.__e(n,t.__v);}}c.__b=function(t){it=null,pt&&pt(t);},c.__r=function(t){dt&&dt(t),ot=0;var n=(it=t.__c).__H;n&&(ut===it?(n.__h=[],it.__h=[],n.__.forEach(function(t){t.__N&&(t.__=t.__N),t.__V=ft,t.__N=t.i=void 0;})):(n.__h.forEach(Nt),n.__h.forEach(Pt),n.__h=[])),ut=it;},c.diffed=function(t){ht&&ht(t);var n=t.__c;n&&n.__H&&(n.__H.__h.length&&(1!==ct.push(n)&&st===c.requestAnimationFrame||((st=c.requestAnimationFrame)||St)(xt)),n.__H.__.forEach(function(t){t.i&&(t.__H=t.i),t.__V!==ft&&(t.__=t.__V),t.i=void 0,t.__V=ft;})),ut=it=null;},c.__c=function(t,n){n.some(function(t){try{t.__h.forEach(Nt),t.__h=t.__h.filter(function(t){return !t.__||Pt(t)});}catch(e){n.some(function(t){t.__h&&(t.__h=[]);}),n=[],c.__e(e,t.__v);}}),_t&&_t(t,n);},c.unmount=function(t){mt&&mt(t);var n,e=t.__c;e&&e.__H&&(e.__H.__.forEach(function(t){try{Nt(t);}catch(t){n=t;}}),e.__H=void 0,n&&c.__e(n,e.__v));};var kt="function"==typeof requestAnimationFrame;function St(t){var n,e=function(){clearTimeout(r),kt&&cancelAnimationFrame(n),setTimeout(t);},r=setTimeout(e,100);kt&&(n=requestAnimationFrame(e));}function Nt(t){var n=it,e=t.__c;"function"==typeof e&&(t.__c=void 0,e()),it=n;}function Pt(t){var n=it;t.__c=t.__(),it=n;}function Ct(t,n){return !t||t.length!==n.length||n.some(function(n,e){return n!==t[e]})}function Et(t,n){return "function"==typeof n?n(t):n}function It(){return function(t){var n=it.context[t.__c],e=vt(ot++,9);return e.c=t,n?(null==e.__&&(e.__=true,n.sub(it)),n.props.value):t.__}(fn)}var Tt={search:{placeholder:"Type a keyword..."},sort:{sortAsc:"Sort column ascending",sortDesc:"Sort column descending"},pagination:{previous:"Previous",next:"Next",navigate:function(t,n){return "Page "+t+" of "+n},page:function(t){return "Page "+t},showing:"Showing",of:"of",to:"to",results:"results"},loading:"Loading...",noRecordsFound:"No matching records found",error:"An error happened while fetching the data"},Lt=/*#__PURE__*/function(){function t(t){this._language=void 0,this._defaultLanguage=void 0,this._language=t,this._defaultLanguage=Tt;}var n=t.prototype;return n.getString=function(t,n){if(!n||!t)return null;var e=t.split("."),r=e[0];if(n[r]){var o=n[r];return "string"==typeof o?function(){return o}:"function"==typeof o?o:this.getString(e.slice(1).join("."),o)}return null},n.translate=function(t){var n,e=this.getString(t,this._language);return (n=e||this.getString(t,this._defaultLanguage))?n.apply(void 0,[].slice.call(arguments,1)):t},t}();function At(){var t=It();return function(n){var e;return (e=t.translator).translate.apply(e,[n].concat([].slice.call(arguments,1)))}}var Ot=function(t){return function(n){return e({},n,{search:{keyword:t}})}};function Ht(){return It().store}function jt(t){var n=Ht(),e=yt(t(n.getState())),r=e[0],o=e[1];return gt(function(){return n.subscribe(function(){var e=t(n.getState());r!==e&&o(e);})},[]),r}function Dt(){var t,n=yt(void 0),e=n[0],r=n[1],o=It(),i=o.search,u=At(),s=Ht().dispatch,a=jt(function(t){return t.search});gt(function(){e&&e.setProps({keyword:null==a?void 0:a.keyword});},[a,e]),gt(function(){r(i.server?new at({keyword:i.keyword,url:i.server.url,body:i.server.body}):new nt({keyword:i.keyword,columns:o.header&&o.header.columns,ignoreHiddenColumns:i.ignoreHiddenColumns||void 0===i.ignoreHiddenColumns,selector:i.selector})),i.keyword&&s(Ot(i.keyword));},[i]),gt(function(){if(e)return o.pipeline.register(e),function(){return o.pipeline.unregister(e)}},[o,e]);var l,c,f,p=function(t,n){return lt=8,wt(function(){return t},n)}((l=function(t){t.target instanceof HTMLInputElement&&s(Ot(t.target.value));},c=e instanceof at?i.debounceTimeout||250:0,function(){var t=arguments;return new Promise(function(n){f&&clearTimeout(f),f=setTimeout(function(){return n(l.apply(void 0,[].slice.call(t)))},c);})}),[i,e]);return w("div",{className:et(rt("search",null==(t=o.className)?void 0:t.search))},w("input",{type:"search",placeholder:u("search.placeholder"),"aria-label":u("search.placeholder"),onInput:p,className:rt(et("input"),et("search","input")),defaultValue:(null==a?void 0:a.keyword)||""}))}var Mt=/*#__PURE__*/function(t){function e(){return t.apply(this,arguments)||this}r(e,t);var o=e.prototype;return o.validateProps=function(){if(isNaN(Number(this.props.limit))||isNaN(Number(this.props.page)))throw Error("Invalid parameters passed")},o._process=function(t){var n=this.props.page;return new J(t.rows.slice(n*this.props.limit,(n+1)*this.props.limit))},n(e,[{key:"type",get:function(){return K.Limit}}]),e}(tt),Ft=/*#__PURE__*/function(t){function o(){return t.apply(this,arguments)||this}return r(o,t),o.prototype._process=function(t){var n={};return this.props.url&&(n.url=this.props.url(t.url,this.props.page,this.props.limit)),this.props.body&&(n.body=this.props.body(t.body,this.props.page,this.props.limit)),e({},t,n)},n(o,[{key:"type",get:function(){return K.ServerLimit}}]),o}(tt);function Rt(){var t=It(),n=t.pagination,e=n.server,r=n.summary,o=void 0===r||r,i=n.nextButton,u=void 0===i||i,s=n.prevButton,a=void 0===s||s,l=n.buttonsCount,c=void 0===l?3:l,f=n.limit,p=void 0===f?10:f,d=n.page,h=void 0===d?0:d,_=n.resetPageOnUpdate,m=void 0===_||_,v=bt(null),y=yt(h),g=y[0],b=y[1],x=yt(0),k=x[0],N=x[1],P=At();gt(function(){return e?(v.current=new Ft({limit:p,page:g,url:e.url,body:e.body}),t.pipeline.register(v.current)):(v.current=new Mt({limit:p,page:g}),t.pipeline.register(v.current)),v.current instanceof Ft?t.pipeline.on("afterProcess",function(t){return N(t.length)}):v.current instanceof Mt&&v.current.on("beforeProcess",function(t){return N(t.length)}),t.pipeline.on("updated",C),t.pipeline.on("error",function(){N(0),b(0);}),function(){t.pipeline.unregister(v.current),t.pipeline.off("updated",C);}},[]);var C=function(t){m&&t!==v.current&&(b(0),0!==v.current.props.page&&v.current.setProps({page:0}));},E=function(){return Math.ceil(k/p)},I=function(t){if(t>=E()||t<0||t===g)return null;b(t),v.current.setProps({page:t});};return w("div",{className:rt(et("pagination"),t.className.pagination)},w(S,null,o&&k>0&&w("div",{role:"status","aria-live":"polite",className:rt(et("summary"),t.className.paginationSummary),title:P("pagination.navigate",g+1,E())},P("pagination.showing")," ",w("b",null,P(""+(g*p+1)))," ",P("pagination.to")," ",w("b",null,P(""+Math.min((g+1)*p,k)))," ",P("pagination.of")," ",w("b",null,P(""+k))," ",P("pagination.results"))),w("div",{className:et("pages")},a&&w("button",{tabIndex:0,role:"button",disabled:0===g,onClick:function(){return I(g-1)},title:P("pagination.previous"),"aria-label":P("pagination.previous"),className:rt(t.className.paginationButton,t.className.paginationButtonPrev)},P("pagination.previous")),function(){if(c<=0)return null;var n=Math.min(E(),c),e=Math.min(g,Math.floor(n/2));return g+Math.floor(n/2)>=E()&&(e=n-(E()-g)),w(S,null,E()>n&&g-e>0&&w(S,null,w("button",{tabIndex:0,role:"button",onClick:function(){return I(0)},title:P("pagination.firstPage"),"aria-label":P("pagination.firstPage"),className:t.className.paginationButton},P("1")),w("button",{tabIndex:-1,className:rt(et("spread"),t.className.paginationButton)},"...")),Array.from(Array(n).keys()).map(function(t){return g+(t-e)}).map(function(n){return w("button",{tabIndex:0,role:"button",onClick:function(){return I(n)},className:rt(g===n?rt(et("currentPage"),t.className.paginationButtonCurrent):null,t.className.paginationButton),title:P("pagination.page",n+1),"aria-label":P("pagination.page",n+1)},P(""+(n+1)))}),E()>n&&E()>g+e+1&&w(S,null,w("button",{tabIndex:-1,className:rt(et("spread"),t.className.paginationButton)},"..."),w("button",{tabIndex:0,role:"button",onClick:function(){return I(E()-1)},title:P("pagination.page",E()),"aria-label":P("pagination.page",E()),className:t.className.paginationButton},P(""+E()))))}(),u&&w("button",{tabIndex:0,role:"button",disabled:E()===g+1||0===E(),onClick:function(){return I(g+1)},title:P("pagination.next"),"aria-label":P("pagination.next"),className:rt(t.className.paginationButton,t.className.paginationButtonNext)},P("pagination.next"))))}function Ut(t,n){return "string"==typeof t?t.indexOf("%")>-1?n/100*parseInt(t,10):parseInt(t,10):t}function Wt(t){return t?Math.floor(t)+"px":""}function Bt(t){var n=t.tableRef.cloneNode(true);return n.style.position="absolute",n.style.width="100%",n.style.zIndex="-2147483640",n.style.visibility="hidden",w("div",{ref:function(t){t&&t.appendChild(n);}})}function qt(t){if(!t)return "";var n=t.split(" ");return 1===n.length&&/([a-z][A-Z])+/g.test(t)?t:n.map(function(t,n){return 0==n?t.toLowerCase():t.charAt(0).toUpperCase()+t.slice(1).toLowerCase()}).join("")}var zt,Vt=new(/*#__PURE__*/function(){function t(){}var n=t.prototype;return n.format=function(t,n){return "[Grid.js] ["+n.toUpperCase()+"]: "+t},n.error=function(t,n){ void 0===n&&(n=false);var e=this.format(t,"error");if(n)throw Error(e);console.error(e);},n.warn=function(t){console.warn(this.format(t,"warn"));},n.info=function(t){console.info(this.format(t,"info"));},t}());!function(t){t[t.Header=0]="Header",t[t.Footer=1]="Footer",t[t.Cell=2]="Cell";}(zt||(zt={}));var $t=/*#__PURE__*/function(){function t(){this.plugins=void 0,this.plugins=[];}var n=t.prototype;return n.get=function(t){return this.plugins.find(function(n){return n.id===t})},n.add=function(t){return t.id?this.get(t.id)?(Vt.error("Duplicate plugin ID: "+t.id),this):(this.plugins.push(t),this):(Vt.error("Plugin ID cannot be empty"),this)},n.remove=function(t){var n=this.get(t);return n&&this.plugins.splice(this.plugins.indexOf(n),1),this},n.list=function(t){var n;return n=null!=t||null!=t?this.plugins.filter(function(n){return n.position===t}):this.plugins,n.sort(function(t,n){return t.order&&n.order?t.order-n.order:1})},t}();function Gt(t){var n=this,r=It();if(t.pluginId){var o=r.plugin.get(t.pluginId);return o?w(S,{},w(o.component,e({plugin:o},t.props))):null}return void 0!==t.position?w(S,{},r.plugin.list(t.position).map(function(t){return w(t.component,e({plugin:t},n.props.props))})):null}var Kt=/*#__PURE__*/function(t){function o(){var n;return (n=t.call(this)||this)._columns=void 0,n._columns=[],n}r(o,t);var i=o.prototype;return i.adjustWidth=function(t,n,r){var i=t.container,u=t.autoWidth;if(!i)return this;var a=i.clientWidth,l={};n.current&&u&&(q(w(Bt,{tableRef:n.current}),r.current),l=function(t){var n=t.querySelector("table");if(!n)return {};var r=n.className,o=n.style.cssText;n.className=r+" "+et("shadowTable"),n.style.tableLayout="auto",n.style.width="auto",n.style.padding="0",n.style.margin="0",n.style.border="none",n.style.outline="none";var i=Array.from(n.parentNode.querySelectorAll("thead th")).reduce(function(t,n){var r;return n.style.width=n.clientWidth+"px",e(((r={})[n.getAttribute("data-column-id")]={minWidth:n.clientWidth},r),t)},{});return n.className=r,n.style.cssText=o,n.style.tableLayout="auto",Array.from(n.parentNode.querySelectorAll("thead th")).reduce(function(t,n){return t[n.getAttribute("data-column-id")].width=n.clientWidth,t},i)}(r.current));for(var c,f=s(o.tabularFormat(this.columns).reduce(function(t,n){return t.concat(n)},[]));!(c=f()).done;){var p=c.value;p.columns&&p.columns.length>0||(!p.width&&u?p.id in l&&(p.width=Wt(l[p.id].width),p.minWidth=Wt(l[p.id].minWidth)):p.width=Wt(Ut(p.width,a)));}return n.current&&u&&q(null,r.current),this},i.setSort=function(t,n){for(var r,o=s(n||this.columns||[]);!(r=o()).done;){var i=r.value;i.columns&&i.columns.length>0?i.sort=void 0:void 0===i.sort&&t?i.sort={}:i.sort?"object"==typeof i.sort&&(i.sort=e({},i.sort)):i.sort=void 0,i.columns&&this.setSort(t,i.columns);}},i.setResizable=function(t,n){for(var e,r=s(n||this.columns||[]);!(e=r()).done;){var o=e.value;void 0===o.resizable&&(o.resizable=t),o.columns&&this.setResizable(t,o.columns);}},i.setID=function(t){for(var n,e=s(t||this.columns||[]);!(n=e()).done;){var r=n.value;r.id||"string"!=typeof r.name||(r.id=qt(r.name)),r.id||Vt.error('Could not find a valid ID for one of the columns. Make sure a valid "id" is set for all columns.'),r.columns&&this.setID(r.columns);}},i.populatePlugins=function(t,n){for(var r,o=s(n);!(r=o()).done;){var i=r.value;void 0!==i.plugin&&t.add(e({id:i.id},i.plugin,{position:zt.Cell}));}},o.fromColumns=function(t){for(var n,e=new o,r=s(t);!(n=r()).done;){var i=n.value;if("string"==typeof i||p(i))e.columns.push({name:i});else if("object"==typeof i){var u=i;u.columns&&(u.columns=o.fromColumns(u.columns).columns),"object"==typeof u.plugin&&void 0===u.data&&(u.data=null),e.columns.push(i);}}return e},o.createFromConfig=function(t){var n=new o;return t.from?n.columns=o.fromHTMLTable(t.from).columns:t.columns?n.columns=o.fromColumns(t.columns).columns:!t.data||"object"!=typeof t.data[0]||t.data[0]instanceof Array||(n.columns=Object.keys(t.data[0]).map(function(t){return {name:t}})),n.columns.length?(n.setID(),n.setSort(t.sort),n.setResizable(t.resizable),n.populatePlugins(t.plugin,n.columns),n):null},o.fromHTMLTable=function(t){for(var n,e=new o,r=s(t.querySelector("thead").querySelectorAll("th"));!(n=r()).done;){var i=n.value;e.columns.push({name:i.innerHTML,width:i.width});}return e},o.tabularFormat=function(t){var n=[],e=t||[],r=[];if(e&&e.length){n.push(e);for(var o,i=s(e);!(o=i()).done;){var u=o.value;u.columns&&u.columns.length&&(r=r.concat(u.columns));}r.length&&(n=n.concat(this.tabularFormat(r)));}return n},o.leafColumns=function(t){var n=[],e=t||[];if(e&&e.length)for(var r,o=s(e);!(r=o()).done;){var i=r.value;i.columns&&0!==i.columns.length||n.push(i),i.columns&&(n=n.concat(this.leafColumns(i.columns)));}return n},o.maximumDepth=function(t){return this.tabularFormat([t]).length-1},n(o,[{key:"columns",get:function(){return this._columns},set:function(t){this._columns=t;}},{key:"visibleColumns",get:function(){return this._columns.filter(function(t){return !t.hidden})}}]),o}(V),Xt=function(){},Zt=/*#__PURE__*/function(t){function n(n){var e;return (e=t.call(this)||this).data=void 0,e.set(n),e}r(n,t);var e=n.prototype;return e.get=function(){try{return Promise.resolve(this.data()).then(function(t){return {data:t,total:t.length}})}catch(t){return Promise.reject(t)}},e.set=function(t){return t instanceof Array?this.data=function(){return t}:t instanceof Function&&(this.data=t),this},n}(Xt),Jt=/*#__PURE__*/function(t){function n(n){var e;return (e=t.call(this)||this).options=void 0,e.options=n,e}r(n,t);var o=n.prototype;return o.handler=function(t){return "function"==typeof this.options.handle?this.options.handle(t):t.ok?t.json():(Vt.error("Could not fetch data: "+t.status+" - "+t.statusText,true),null)},o.get=function(t){var n=e({},this.options,t);return "function"==typeof n.data?n.data(n):fetch(n.url,n).then(this.handler.bind(this)).then(function(t){return {data:n.then(t),total:"function"==typeof n.total?n.total(t):void 0}})},n}(Xt),Qt=/*#__PURE__*/function(){function t(){}return t.createFromConfig=function(t){var n=null;return t.data&&(n=new Zt(t.data)),t.from&&(n=new Zt(this.tableElementToArray(t.from)),t.from.style.display="none"),t.server&&(n=new Jt(t.server)),n||Vt.error("Could not determine the storage type",true),n},t.tableElementToArray=function(t){for(var n,e,r=[],o=s(t.querySelector("tbody").querySelectorAll("tr"));!(n=o()).done;){for(var i,u=[],a=s(n.value.querySelectorAll("td"));!(i=a()).done;){var l=i.value;1===l.childNodes.length&&l.childNodes[0].nodeType===Node.TEXT_NODE?u.push((e=l.innerHTML,(new DOMParser).parseFromString(e,"text/html").documentElement.textContent)):u.push(G(l.innerHTML));}r.push(u);}return r},t}(),Yt="undefined"!=typeof Symbol?Symbol.iterator||(Symbol.iterator=Symbol("Symbol.iterator")):"@@iterator";function tn(t,n,e){if(!t.s){if(e instanceof nn){if(!e.s)return void(e.o=tn.bind(null,t,n));1&n&&(n=e.s),e=e.v;}if(e&&e.then)return void e.then(tn.bind(null,t,n),tn.bind(null,t,2));t.s=n,t.v=e;var r=t.o;r&&r(t);}}var nn=/*#__PURE__*/function(){function t(){}return t.prototype.then=function(n,e){var r=new t,o=this.s;if(o){var i=1&o?n:e;if(i){try{tn(r,1,i(this.v));}catch(t){tn(r,2,t);}return r}return this}return this.o=function(t){try{var o=t.v;1&t.s?tn(r,1,n?n(o):o):e?tn(r,1,e(o)):tn(r,2,o);}catch(t){tn(r,2,t);}},r},t}();function en(t){return t instanceof nn&&1&t.s}var rn=/*#__PURE__*/function(t){function e(n){var e;return (e=t.call(this)||this)._steps=new Map,e.cache=new Map,e.lastProcessorIndexUpdated=-1,n&&n.forEach(function(t){return e.register(t)}),e}r(e,t);var o=e.prototype;return o.clearCache=function(){this.cache=new Map,this.lastProcessorIndexUpdated=-1;},o.register=function(t,n){if(void 0===n&&(n=null),!t)throw Error("Processor is not defined");if(null===t.type)throw Error("Processor type is not defined");if(this.findProcessorIndexByID(t.id)>-1)throw Error("Processor ID "+t.id+" is already defined");return t.on("propsUpdated",this.processorPropsUpdated.bind(this)),this.addProcessorByPriority(t,n),this.afterRegistered(t),t},o.tryRegister=function(t,n){ void 0===n&&(n=null);try{return this.register(t,n)}catch(t){}},o.unregister=function(t){if(t&&-1!==this.findProcessorIndexByID(t.id)){var n=this._steps.get(t.type);n&&n.length&&(this._steps.set(t.type,n.filter(function(n){return n!=t})),this.emit("updated",t));}},o.addProcessorByPriority=function(t,n){var e=this._steps.get(t.type);if(!e){var r=[];this._steps.set(t.type,r),e=r;}if(null===n||n<0)e.push(t);else if(e[n]){var o=e.slice(0,n-1),i=e.slice(n+1);this._steps.set(t.type,o.concat(t).concat(i));}else e[n]=t;},o.getStepsByType=function(t){return this.steps.filter(function(n){return n.type===t})},o.getSortedProcessorTypes=function(){return Object.keys(K).filter(function(t){return !isNaN(Number(t))}).map(function(t){return Number(t)})},o.process=function(t){try{var n=function(t){return e.lastProcessorIndexUpdated=o.length,e.emit("afterProcess",i),i},e=this,r=e.lastProcessorIndexUpdated,o=e.steps,i=t,u=function(t,n){try{var u=function(t,n,e){if("function"==typeof t[Yt]){var r,o,i,u=t[Yt]();if(function t(e){try{for(;!(r=u.next()).done;)if((e=n(r.value))&&e.then){if(!en(e))return void e.then(t,i||(i=tn.bind(null,o=new nn,2)));e=e.v;}o?tn(o,1,e):o=e;}catch(t){tn(o||(o=new nn),2,t);}}(),u.return){var s=function(t){try{r.done||u.return();}catch(t){}return t};if(o&&o.then)return o.then(s,function(t){throw s(t)});s();}return o}if(!("length"in t))throw new TypeError("Object is not iterable");for(var a=[],l=0;l<t.length;l++)a.push(t[l]);return function(t,n,e){var r,o,i=-1;return function e(u){try{for(;++i<t.length;)if((u=n(i))&&u.then){if(!en(u))return void u.then(e,o||(o=tn.bind(null,r=new nn,2)));u=u.v;}r?tn(r,1,u):r=u;}catch(t){tn(r||(r=new nn),2,t);}}(),r}(a,function(t){return n(a[t])})}(o,function(t){var n=e.findProcessorIndexByID(t.id),o=function(){if(n>=r)return Promise.resolve(t.process(i)).then(function(n){e.cache.set(t.id,i=n);});i=e.cache.get(t.id);}();if(o&&o.then)return o.then(function(){})});}catch(t){return n(t)}return u&&u.then?u.then(void 0,n):u}(0,function(t){throw Vt.error(t),e.emit("error",i),t});return Promise.resolve(u&&u.then?u.then(n):n())}catch(t){return Promise.reject(t)}},o.findProcessorIndexByID=function(t){return this.steps.findIndex(function(n){return n.id==t})},o.setLastProcessorIndex=function(t){var n=this.findProcessorIndexByID(t.id);this.lastProcessorIndexUpdated>n&&(this.lastProcessorIndexUpdated=n);},o.processorPropsUpdated=function(t){this.setLastProcessorIndex(t),this.emit("propsUpdated"),this.emit("updated",t);},o.afterRegistered=function(t){this.setLastProcessorIndex(t),this.emit("afterRegister"),this.emit("updated",t);},n(e,[{key:"steps",get:function(){for(var t,n=[],e=s(this.getSortedProcessorTypes());!(t=e()).done;){var r=this._steps.get(t.value);r&&r.length&&(n=n.concat(r));}return n.filter(function(t){return t})}}]),e}(Q),on=/*#__PURE__*/function(t){function e(){return t.apply(this,arguments)||this}return r(e,t),e.prototype._process=function(t){try{return Promise.resolve(this.props.storage.get(t))}catch(t){return Promise.reject(t)}},n(e,[{key:"type",get:function(){return K.Extractor}}]),e}(tt),un=/*#__PURE__*/function(t){function e(){return t.apply(this,arguments)||this}return r(e,t),e.prototype._process=function(t){var n=J.fromArray(t.data);return n.length=t.total,n},n(e,[{key:"type",get:function(){return K.Transformer}}]),e}(tt),sn=/*#__PURE__*/function(t){function o(){return t.apply(this,arguments)||this}return r(o,t),o.prototype._process=function(){return Object.entries(this.props.serverStorageOptions).filter(function(t){return "function"!=typeof t[1]}).reduce(function(t,n){var r;return e({},t,((r={})[n[0]]=n[1],r))},{})},n(o,[{key:"type",get:function(){return K.Initiator}}]),o}(tt),an=/*#__PURE__*/function(t){function e(){return t.apply(this,arguments)||this}r(e,t);var o=e.prototype;return o.castData=function(t){if(!t||!t.length)return [];if(!this.props.header||!this.props.header.columns)return t;var n=Kt.leafColumns(this.props.header.columns);return t[0]instanceof Array?t.map(function(t){var e=0;return n.map(function(n,r){return void 0!==n.data?(e++,"function"==typeof n.data?n.data(t):n.data):t[r-e]})}):"object"!=typeof t[0]||t[0]instanceof Array?[]:t.map(function(t){return n.map(function(n,e){return void 0!==n.data?"function"==typeof n.data?n.data(t):n.data:n.id?t[n.id]:(Vt.error("Could not find the correct cell for column at position "+e+".\n                          Make sure either 'id' or 'selector' is defined for all columns."),null)})})},o._process=function(t){return {data:this.castData(t.data),total:t.total}},n(e,[{key:"type",get:function(){return K.Transformer}}]),e}(tt),ln=/*#__PURE__*/function(){function t(){}return t.createFromConfig=function(t){var n=new rn;return t.storage instanceof Jt&&n.register(new sn({serverStorageOptions:t.server})),n.register(new on({storage:t.storage})),n.register(new an({header:t.header})),n.register(new un),n},t}(),cn=function(t){var n=this;this.state=void 0,this.listeners=[],this.isDispatching=false,this.getState=function(){return n.state},this.getListeners=function(){return n.listeners},this.dispatch=function(t){if("function"!=typeof t)throw new Error("Reducer is not a function");if(n.isDispatching)throw new Error("Reducers may not dispatch actions");n.isDispatching=true;var e=n.state;try{n.state=t(n.state);}finally{n.isDispatching=false;}for(var r,o=s(n.listeners);!(r=o()).done;)(0, r.value)(n.state,e);return n.state},this.subscribe=function(t){if("function"!=typeof t)throw new Error("Listener is not a function");return n.listeners=[].concat(n.listeners,[t]),function(){return n.listeners=n.listeners.filter(function(n){return n!==t})}},this.state=t;},fn=function(t,n){var e={__c:n="__cC"+_++,__:null,Consumer:function(t,n){return t.children(n)},Provider:function(t){var e,r;return this.getChildContext||(e=[],(r={})[n]=this,this.getChildContext=function(){return r},this.shouldComponentUpdate=function(t){this.props.value!==t.value&&e.some(E);},this.sub=function(t){e.push(t);var n=t.componentWillUnmount;t.componentWillUnmount=function(){e.splice(e.indexOf(t),1),n&&n.call(t);};}),t.children}};return e.Provider.__=e.Consumer.contextType=e}(),pn=/*#__PURE__*/function(){function t(){Object.assign(this,t.defaultConfig());}var n=t.prototype;return n.assign=function(t){return Object.assign(this,t)},n.update=function(n){return n?(this.assign(t.fromPartialConfig(e({},this,n))),this):this},t.defaultConfig=function(){return {store:new cn({status:a.Init,header:void 0,data:null}),plugin:new $t,tableRef:{current:null},width:"100%",height:"auto",processingThrottleMs:100,autoWidth:true,style:{},className:{}}},t.fromPartialConfig=function(n){var e=(new t).assign(n);return "boolean"==typeof n.sort&&n.sort&&e.assign({sort:{multiColumn:true}}),e.assign({header:Kt.createFromConfig(e)}),e.assign({storage:Qt.createFromConfig(e)}),e.assign({pipeline:ln.createFromConfig(e)}),e.assign({translator:new Lt(e.language)}),e.plugin=new $t,e.search&&e.plugin.add({id:"search",position:zt.Header,component:Dt}),e.pagination&&e.plugin.add({id:"pagination",position:zt.Footer,component:Rt}),e.plugins&&e.plugins.forEach(function(t){return e.plugin.add(t)}),e},t}();function dn(t){var n,r=It();return w("td",e({role:t.role,colSpan:t.colSpan,"data-column-id":t.column&&t.column.id,className:rt(et("td"),t.className,r.className.td),style:e({},t.style,r.style.td),onClick:function(n){t.messageCell||r.eventEmitter.emit("cellClick",n,t.cell,t.column,t.row);}},(n=t.column)?"function"==typeof n.attributes?n.attributes(t.cell.data,t.row,t.column):n.attributes:{}),t.column&&"function"==typeof t.column.formatter?t.column.formatter(t.cell.data,t.row,t.column):t.column&&t.column.plugin?w(Gt,{pluginId:t.column.id,props:{column:t.column,cell:t.cell,row:t.row}}):t.cell.data)}function hn(t){var n=It(),e=jt(function(t){return t.header});return w("tr",{className:rt(et("tr"),n.className.tr),onClick:function(e){t.messageRow||n.eventEmitter.emit("rowClick",e,t.row);}},t.children?t.children:t.row.cells.map(function(n,r){var o=function(t){if(e){var n=Kt.leafColumns(e.columns);if(n)return n[t]}return null}(r);return o&&o.hidden?null:w(dn,{key:n.id,cell:n,row:t.row,column:o})}))}function _n(t){return w(hn,{messageRow:true},w(dn,{role:"alert",colSpan:t.colSpan,messageCell:true,cell:new X(t.message),className:rt(et("message"),t.className?t.className:null)}))}function mn(){var t=It(),n=jt(function(t){return t.data}),e=jt(function(t){return t.status}),r=jt(function(t){return t.header}),o=At(),i=function(){return r?r.visibleColumns.length:0};return w("tbody",{className:rt(et("tbody"),t.className.tbody)},n&&n.rows.map(function(t){return w(hn,{key:t.id,row:t})}),e===a.Loading&&(!n||0===n.length)&&w(_n,{message:o("loading"),colSpan:i(),className:rt(et("loading"),t.className.loading)}),e===a.Rendered&&n&&0===n.length&&w(_n,{message:o("noRecordsFound"),colSpan:i(),className:rt(et("notfound"),t.className.notfound)}),e===a.Error&&w(_n,{message:o("error"),colSpan:i(),className:rt(et("error"),t.className.error)}))}var vn=/*#__PURE__*/function(t){function e(){return t.apply(this,arguments)||this}r(e,t);var o=e.prototype;return o.validateProps=function(){for(var t,n=s(this.props.columns);!(t=n()).done;){var e=t.value;void 0===e.direction&&(e.direction=1),1!==e.direction&&-1!==e.direction&&Vt.error("Invalid sort direction "+e.direction);}},o.compare=function(t,n){return t>n?1:t<n?-1:0},o.compareWrapper=function(t,n){for(var e,r=0,o=s(this.props.columns);!(e=o()).done;){var i=e.value;if(0!==r)break;var u=t.cells[i.index].data,a=n.cells[i.index].data;r|="function"==typeof i.compare?i.compare(u,a)*i.direction:this.compare(u,a)*i.direction;}return r},o._process=function(t){var n=[].concat(t.rows);n.sort(this.compareWrapper.bind(this));var e=new J(n);return e.length=t.length,e},n(e,[{key:"type",get:function(){return K.Sort}}]),e}(tt),yn=function(t,n,r,o){return function(i){var u,s=null!=(u=i.sort)&&u.columns?i.sort.columns.map(function(t){return e({},t)}):[],a=s.length,l=s.find(function(n){return n.index===t}),c=false,f=false,p=false,d=false;if(void 0!==l?r?-1===l.direction?p=true:d=true:1===a?d=true:a>1&&(f=true,c=true):0===a?c=true:a>0&&!r?(c=true,f=true):a>0&&r&&(c=true),f&&(s=[]),c)s.push({index:t,direction:n,compare:o});else if(d){var h=s.indexOf(l);s[h].direction=n;}else if(p){var _=s.indexOf(l);s.splice(_,1);}return e({},i,{sort:{columns:s}})}},gn=function(t,n,r){return function(o){var i=(o.sort?[].concat(o.sort.columns):[]).find(function(n){return n.index===t});return e({},o,i?yn(t,1===i.direction?-1:1,n,r)(o):yn(t,1,n,r)(o))}},bn=/*#__PURE__*/function(t){function o(){return t.apply(this,arguments)||this}return r(o,t),o.prototype._process=function(t){var n={};return this.props.url&&(n.url=this.props.url(t.url,this.props.columns)),this.props.body&&(n.body=this.props.body(t.body,this.props.columns)),e({},t,n)},n(o,[{key:"type",get:function(){return K.ServerSort}}]),o}(tt);function wn(t){var n=It(),r=Ht().dispatch,o=At(),i=yt(0),u=i[0],s=i[1],a=n.sort,l=jt(function(t){return t.sort}),c="object"==typeof(null==a?void 0:a.server)?K.ServerSort:K.Sort,f=function(){var t=n.pipeline.getStepsByType(c);if(t.length)return t[0]};return gt(function(){var t=f()||(c===K.ServerSort?new bn(e({columns:l?l.columns:[]},a.server)):new vn({columns:l?l.columns:[]}));return n.pipeline.tryRegister(t),function(){return n.pipeline.unregister(t)}},[n]),gt(function(){if(l){var n,e=l.columns.find(function(n){return n.index===t.index});e?(0===u&&(e.direction=null!=(n=t.direction)?n:1),s(e.direction)):s(0);}},[l]),gt(function(){var t=f();t&&l&&t.setProps({columns:l.columns});},[l]),w("button",{tabIndex:-1,"aria-label":o("sort.sort"+(1===u?"Desc":"Asc")),title:o("sort.sort"+(1===u?"Desc":"Asc")),className:rt(et("sort"),et("sort",function(t){return 1===t?"asc":-1===t?"desc":"neutral"}(u)),n.className.sort),onClick:function(n){n.preventDefault(),n.stopPropagation(),r(gn(t.index,true===n.shiftKey&&a.multiColumn,t.compare));}})}var xn=function(t,n){var e;void 0===n&&(n=100);var r=Date.now(),o=function(){r=Date.now(),t.apply(void 0,[].slice.call(arguments));};return function(){var t=[].slice.call(arguments),i=Date.now(),u=i-r;u>=n?o.apply(void 0,t):(e&&clearTimeout(e),e=setTimeout(function(){o.apply(void 0,t),e=null;},n-u));}};function kn(t){var n,e=function(t){return t instanceof MouseEvent?Math.floor(t.pageX):Math.floor(t.changedTouches[0].pageX)},r=function(r){r.stopPropagation();var u=parseInt(t.thRef.current.style.width,10)-e(r);n=xn(function(t){return o(t,u)},10),document.addEventListener("mouseup",i),document.addEventListener("touchend",i),document.addEventListener("mousemove",n),document.addEventListener("touchmove",n);},o=function(n,r){n.stopPropagation();var o=t.thRef.current;r+e(n)>=parseInt(o.style.minWidth,10)&&(o.style.width=r+e(n)+"px");},i=function t(e){e.stopPropagation(),document.removeEventListener("mouseup",t),document.removeEventListener("mousemove",n),document.removeEventListener("touchmove",n),document.removeEventListener("touchend",t);};return w("div",{className:rt(et("th"),et("resizable")),onMouseDown:r,onTouchStart:r,onClick:function(t){return t.stopPropagation()}})}function Sn(t){var n=It(),r=bt(null),o=yt({}),i=o[0],u=o[1],s=Ht().dispatch;gt(function(){if(n.fixedHeader&&r.current){var t=r.current.offsetTop;"number"==typeof t&&u({top:t});}},[r]);var a,l=function(){return null!=t.column.sort},c=function(e){e.stopPropagation(),l()&&s(gn(t.index,true===e.shiftKey&&n.sort.multiColumn,t.column.sort.compare));};return w("th",e({ref:r,"data-column-id":t.column&&t.column.id,className:rt(et("th"),l()?et("th","sort"):null,n.fixedHeader?et("th","fixed"):null,n.className.th),onClick:c,style:e({},n.style.th,{minWidth:t.column.minWidth,width:t.column.width},i,t.style),onKeyDown:function(t){l()&&13===t.which&&c(t);},rowSpan:t.rowSpan>1?t.rowSpan:void 0,colSpan:t.colSpan>1?t.colSpan:void 0},(a=t.column)?"function"==typeof a.attributes?a.attributes(null,null,t.column):a.attributes:{},l()?{tabIndex:0}:{}),w("div",{className:et("th","content")},void 0!==t.column.name?t.column.name:void 0!==t.column.plugin?w(Gt,{pluginId:t.column.plugin.id,props:{column:t.column}}):null),l()&&w(wn,e({index:t.index},t.column.sort)),t.column.resizable&&t.index<n.header.visibleColumns.length-1&&w(kn,{column:t.column,thRef:r}))}function Nn(){var t,n=It(),e=jt(function(t){return t.header});return e?w("thead",{key:e.id,className:rt(et("thead"),n.className.thead)},(t=Kt.tabularFormat(e.columns)).map(function(n,r){return function(t,n,r){var o=Kt.leafColumns(e.columns);return w(hn,null,t.map(function(t){return t.hidden?null:function(t,n,e,r){var o=function(t,n,e){var r=Kt.maximumDepth(t),o=e-n;return {rowSpan:Math.floor(o-r-r/o),colSpan:t.columns&&t.columns.length||1}}(t,n,r);return w(Sn,{column:t,index:e,colSpan:o.colSpan,rowSpan:o.rowSpan})}(t,n,o.indexOf(t),r)}))}(n,r,t.length)})):null}var Pn=function(t){return function(n){return e({},n,{header:t})}};function Cn(){var t=It(),n=bt(null),r=Ht().dispatch;return gt(function(){n&&r(function(t){return function(n){return e({},n,{tableRef:t})}}(n));},[n]),w("table",{ref:n,role:"grid",className:rt(et("table"),t.className.table),style:e({},t.style.table,{height:t.height})},w(Nn,null),w(mn,null))}function En(){var t=yt(true),n=t[0],r=t[1],o=bt(null),i=It();return gt(function(){0===o.current.children.length&&r(false);},[o]),n?w("div",{ref:o,className:rt(et("head"),i.className.header),style:e({},i.style.header)},w(Gt,{position:zt.Header})):null}function In(){var t=bt(null),n=yt(true),r=n[0],o=n[1],i=It();return gt(function(){0===t.current.children.length&&o(false);},[t]),r?w("div",{ref:t,className:rt(et("footer"),i.className.footer),style:e({},i.style.footer)},w(Gt,{position:zt.Footer})):null}function Tn(){var t=It(),n=Ht().dispatch,r=jt(function(t){return t.status}),o=jt(function(t){return t.data}),i=jt(function(t){return t.tableRef}),u={current:null},s=xn(function(){try{n(function(t){return e({},t,{status:a.Loading})});var r=function(r,o){try{var i=Promise.resolve(t.pipeline.process()).then(function(t){n(function(t){return function(n){return t?e({},n,{data:t,status:a.Loaded}):n}}(t)),setTimeout(function(){n(function(t){return t.status===a.Loaded?e({},t,{status:a.Rendered}):t});},0);});}catch(t){return o(t)}return i&&i.then?i.then(void 0,o):i}(0,function(t){Vt.error(t),n(function(t){return e({},t,{data:null,status:a.Error})});});return Promise.resolve(r&&r.then?r.then(function(){}):void 0)}catch(t){return Promise.reject(t)}},t.processingThrottleMs);return gt(function(){return n(Pn(t.header)),s(),t.pipeline.on("updated",s),function(){return t.pipeline.off("updated",s)}},[]),gt(function(){t.header&&r===a.Loaded&&null!=o&&o.length&&n(Pn(t.header.adjustWidth(t,i,u)));},[o,t,u]),w("div",{role:"complementary",className:rt("gridjs",et("container"),r===a.Loading?et("loading"):null,t.className.container),style:e({},t.style.container,{width:t.width})},r===a.Loading&&w("div",{className:et("loading-bar")}),w(En,null),w("div",{className:et("wrapper"),style:{height:t.height}},w(Cn,null)),w(In,null),w("div",{ref:u,id:"gridjs-temp",className:et("temp")}))}var Ln=/*#__PURE__*/function(t){function n(n){var e;return (e=t.call(this)||this).config=void 0,e.plugin=void 0,e.config=(new pn).assign({instance:i(e),eventEmitter:i(e)}).update(n),e.plugin=e.config.plugin,e}r(n,t);var e=n.prototype;return e.updateConfig=function(t){return this.config.update(t),this},e.createElement=function(){return w(fn.Provider,{value:this.config,children:w(Tn,{})})},e.forceRender=function(){return this.config&&this.config.container||Vt.error("Container is empty. Make sure you call render() before forceRender()",true),this.destroy(),q(this.createElement(),this.config.container),this},e.destroy=function(){this.config.pipeline.clearCache(),q(null,this.config.container);},e.render=function(t){return t||Vt.error("Container element cannot be null",true),t.childNodes.length>0?(Vt.error("The container element "+t+" is not empty. Make sure the container is empty and call render() again"),this):(this.config.container=t,q(this.createElement(),t),this)},n}(Q);
 
-// src/context-editor/formalContext.js
+// src/context-editor/table/widths.js
+// Sizing + <colgroup> utilities for Grid.js tables.
+// Focus: better readability for header labels & object names.
+
+// ------- Tunable profile (Comfort) -------
+const COMFORT = {
+  // Attribute header cells (text-only, body cells are checkboxes)
+  attrMin: 112,   // was 44
+  attrPad: 28,   // was 24
+  attrMax: 560,  // was 360
+
+  // First column (object names) can be long; give it more room
+  objMin: 140,   // was 90
+  objPad: 36,    // was 28
+  objMax: 560    // was 280
+};
+
+const ATTR_BUTTON_PAD = 26;
+
+/* ---------- Pixel measuring (Electron-friendly, stable) ---------- */
+function measureTextPx(text, refEl) {
+  const probe =
+    refEl ||
+    document.querySelector(".gridjs-thead .gridjs-th .gridjs-th-content") ||
+    document.querySelector(".gridjs-thead .gridjs-th input") ||
+    document.querySelector(".gridjs-thead .gridjs-th");
+
+  const font = probe ? getComputedStyle(probe).font : "14px system-ui, sans-serif";
+  const canvas = measureTextPx._canvas || (measureTextPx._canvas = document.createElement("canvas"));
+  const ctx = canvas.getContext("2d");
+  ctx.font = font;
+  return Math.ceil(ctx.measureText(String(text || "")).width);
+}
+
+function desiredAttrPx(label) {
+  const textPx = measureTextPx(label);
+  const { attrMin: min, attrPad: pad, attrMax: max } = COMFORT;
+  //return Math.max(min, Math.min(textPx + pad, max));
+  return Math.max(min, Math.min(textPx + pad + ATTR_BUTTON_PAD, max));
+}
+
+function desiredObjectColPx(columns, data) {
+  // first col = object name
+  const names = data.map(r => String(r?.[0] ?? ""));
+  const longest = names.reduce((m, s) => Math.max(m, measureTextPx(s)), 0);
+  const { objMin: min, objPad: pad, objMax: max } = COMFORT;
+  return Math.max(min, Math.min(longest + pad, max));
+}
+
+/* ---------- Apply exact pixel widths to cells (fallback) ---------- */
+function applyColumnPixelWidth(tableSelector, colIndex, px) {
+  const container = document.querySelector(tableSelector);
+  if (!container) return;
+  const ths = container.querySelectorAll(".gridjs-thead .gridjs-th");
+  const trsBody = container.querySelectorAll(".gridjs-tbody tr");
+
+  const setCellWidth = (cell) => {
+    cell.style.width = px + "px";
+    cell.style.minWidth = px + "px";
+    const content = cell.querySelector(".gridjs-th-content");
+    if (content) {
+      content.style.width = px + "px";
+      content.style.minWidth = px + "px";
+      content.style.maxWidth = px + "px";
+    }
+  };
+
+  if (ths[colIndex]) setCellWidth(ths[colIndex]);
+  trsBody.forEach(tr => {
+    const td = tr.querySelector(`:scope > td:nth-child(${colIndex + 1})`);
+    if (td) setCellWidth(td);
+  });
+
+  container.querySelector(".gridjs-wrapper")?.getBoundingClientRect(); // force paint
+}
+
+function scheduleColumnWidthPx(tableSelector, colIndex, px) {
+  if (scheduleColumnWidthPx._raf) cancelAnimationFrame(scheduleColumnWidthPx._raf);
+  scheduleColumnWidthPx._raf = requestAnimationFrame(() => {
+    applyColumnPixelWidth(tableSelector, colIndex, px);
+    window.dispatchEvent(new Event("resize")); // nudges Electron paints
+  });
+}
+
+function snapshotColumnWidths(tableSelector) {
+  const container = document.querySelector(tableSelector);
+  const ths = container?.querySelectorAll(".gridjs-thead .gridjs-th");
+  return ths ? Array.from(ths, th => th.getBoundingClientRect().width) : [];
+}
+
+function applyColumnWidths(tableSelector, widths, removedIndex = null) {
+  const container = document.querySelector(tableSelector);
+  const ths = container?.querySelectorAll(".gridjs-thead .gridjs-th");
+  if (!ths || !widths.length) return;
+  Array.from(ths).forEach((th, i) => {
+    let src = i;
+    if (removedIndex !== null && i >= removedIndex) src = i + 1;
+    const w = widths[src];
+    if (w) {
+      const px = Math.round(w);
+      th.style.width = px + "px";
+      th.style.minWidth = px + "px";
+    }
+  });
+}
+
+const nextFrame = (cb) => requestAnimationFrame(() => requestAnimationFrame(cb));
+const forceReflow = (el) => { if (el) el.getBoundingClientRect(); };
+
+/* ---------- <colgroup> “sticky” widths (the main mechanism) ---------- */
+function computeColumnWidthsPx(columns, data) {
+  const { objMin, objPad, objMax, attrMin, attrPad, attrMax } = COMFORT;
+
+  // Measure all object names for accuracy (cheap even for 1–2k rows)
+  const objText = Math.max(...data.map(r => measureTextPx(r?.[0] ?? "")), 0);
+  const widths = [Math.max(objMin, Math.min(objText + objPad, objMax))];
+
+  for (let i = 1; i < columns.length; i++) {
+    const label = columns[i];
+    //const w = Math.max(attrMin, Math.min(measureTextPx(label) + attrPad, attrMax));
+    const w = Math.max(attrMin, Math.min(measureTextPx(label) + attrPad + ATTR_BUTTON_PAD, attrMax));
+    widths.push(w);
+  }
+  return widths;
+}
+
+function installColgroup(tableRoot, widthsPx) {
+  const table = tableRoot.querySelector(".gridjs-table");
+  if (!table) return;
+
+  // remove any previous colgroup we added
+  const old = table.querySelector("colgroup[data-owned='1']");
+  if (old) old.remove();
+
+  const cg = document.createElement("colgroup");
+  cg.setAttribute("data-owned", "1");
+  widthsPx.forEach(px => {
+    const col = document.createElement("col");
+    col.style.width = px + "px";
+    cg.appendChild(col);
+  });
+  table.insertBefore(cg, table.firstChild);
+}
+
+// Wait until Grid.js actually put the header in the DOM & measured things
+function whenGridStable(tableSelector, expectedCols, cb) {
+  const root = document.querySelector(tableSelector);
+  if (!root) return;
+  let tries = 0;
+  (function tick() {
+    const ths = root.querySelectorAll(".gridjs-thead .gridjs-th");
+    const table = root.querySelector(".gridjs-table");
+    const ready = table && ths.length === expectedCols;
+    if (ready || tries > 20) { cb(); return; }
+    tries++; requestAnimationFrame(tick);
+  })();
+}
+
+// One-call API we call after each render
+function applyInitialColumnWidths(tableSelector, columns, data) {
+  whenGridStable(tableSelector, columns.length, () => {
+    const root = document.querySelector(tableSelector);
+    if (!root) return;
+    const widths = computeColumnWidthsPx(columns, data);
+    installColgroup(root, widths);
+
+    // light fallback to help some themes
+    const ths = root.querySelectorAll(".gridjs-thead .gridjs-th");
+    const rows = root.querySelectorAll(".gridjs-tbody tr");
+    ths.forEach((th, i) => th.style.minWidth = widths[i] + "px");
+    rows.forEach(tr => {
+      [...tr.children].forEach((td, i) => td.style.minWidth = widths[i] + "px");
+    });
+  });
+}
+
+// Update a single <col> width in the installed colgroup (no full reinstall)
+function setColgroupWidth(tableSelector, colIndex, px) {
+  const root = document.querySelector(tableSelector);
+  const table = root?.querySelector(".gridjs-table");
+  const cg = table?.querySelector('colgroup[data-owned="1"]');
+  if (!cg) return;
+  const col = cg.children?.[colIndex];
+  if (col) col.style.width = px + "px";
+}
+
+// Recompute and apply the optimal width for the Object column (col 0)
+function recomputeObjectColWidth(tableSelector, columns, data) {
+  const px = desiredObjectColPx(columns, data);
+  setColgroupWidth(tableSelector, 0, px);               // updates <colgroup>
+  scheduleColumnWidthPx(tableSelector, 0, px);          // fallback per-cell widths
+  return px;
+}
+
+// Recompute & apply width for an ATTRIBUTE column (>=1) based on its header label
+function recomputeAttrColWidth(tableSelector, colIndex, label) {
+  const px = desiredAttrPx(label);
+  setColgroupWidth(tableSelector, colIndex, px);   // update <colgroup>
+  scheduleColumnWidthPx(tableSelector, colIndex, px); // fallback per-cell widths
+  return px;
+}
+
+// src/context-editor/table/grid.js
 
 /**
- * Initialize the Formal Context editor (Grid.js)
- * @param {Object} opts
- * @param {string} opts.tableContainer
- * @param {string} opts.actionsBar
- * @param {string} opts.uploadInput
- * @param {string} opts.showBtn
- * @param {string} opts.createBtn
- * @param {string} opts.addRowBtn
- * @param {string} opts.addColBtn
- * @param {string} opts.exportDropdown
- * @param {string} opts.visualizeBtn
- * @param {(graphData:Object)=>void} opts.onGraphReady
+ * Create and manage the Grid.js table.
+ *
+ * Public API (unchanged):
+ *   const api = initTable({ tableSelector, getState, setState });
+ *   api.update();   // re-render & re-apply widths
+ *   api.destroy();  // clean up
  */
+function initTable({ tableSelector, getState, setState }) {
+  let gridInstance = null;
 
-// ------------------ Parsers ------------------
+  /* ------------------------------ Renderers ------------------------------ */
+
+  function renderObjectName(value, rowIndex) {
+    // First column: editable object name + delete row button
+    return G(`
+      <div class="rename-object-container">
+        <input type="text"
+               value="${escapeAttr(value)}"
+               title="${escapeAttr(value)}"
+               data-row="${rowIndex}"
+               class="rename-object" />
+        <button class="delete-row" data-row="${rowIndex}" title="Delete row">🗑️</button>
+      </div>
+    `);
+  }
+
+  function renderCheckbox(value, rowIndex, colIndex) {
+    if (colIndex === 0) return renderObjectName(value, rowIndex);
+    return G(
+      `<input type="checkbox"
+              ${value ? "checked" : ""}
+              data-row="${rowIndex}"
+              data-col="${colIndex}" />`
+    );
+  }
+
+  function generateGridData(data) {
+    return data.map((row, rowIndex) =>
+      row.map((value, colIndex) => renderCheckbox(value, rowIndex, colIndex))
+    );
+  }
+
+  function getColumns(columns, data) {
+    // debounce so header typing doesn’t thrash widths
+    const debounce = (fn, ms = 120) => {
+      let t = null;
+      return (...args) => {
+        if (t) clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    };
+    const debouncedApply = debounce((colIndex, label) => {
+      // single authority for width changes
+      recomputeAttrColWidth(tableSelector, colIndex, label);
+    }, 120);
+
+    return columns.map((col, index) => ({
+      id: `col-${index}`,
+      // ❌ Removed inline width: computeColumnWidth(...) to avoid conflicts
+      name:
+        index === 0
+          ? col
+          : w("div", { className: "rename-attribute-container" }, [
+              w("input", {
+                type: "text",
+                value: col,
+                title: col,
+                size: Math.max(2, Math.min(30, String(col).length)),
+                "data-col": String(index),
+                className: "rename-attribute",
+                style: "flex:1 1 auto;", // allow flex growth; actual width via <colgroup>
+                onmousedown: (e) => e.stopPropagation(),
+                onclick: (e) => e.stopPropagation(),
+                onpointerdown: (e) => e.stopPropagation(),
+                oninput: (e) => {
+                  const val = e.target.value;
+                  e.target.size = Math.max(2, Math.min(30, val.length));
+                  e.target.title = val;
+                  debouncedApply(index, val); // <— single path for width update
+                }
+              }),
+              w(
+                "button",
+                {
+                  className: "delete-column",
+                  "data-col": String(index),
+                  title: "Delete column",
+                  onmousedown: (e) => e.stopPropagation(),
+                  onpointerdown: (e) => e.stopPropagation(),
+                  onclick: (e) => {
+                    e.stopPropagation();
+                    handleDeleteColumn(index);
+                  }
+                },
+                "🗑️"
+              )
+            ])
+    }));
+  }
+
+  /* ------------------------------ Mount & Update ------------------------------ */
+
+  function mount() {
+    const root = document.querySelector(tableSelector);
+    if (!root) return;
+    root.innerHTML = "";
+
+    const { data, columns } = getState();
+
+    gridInstance = new Ln({
+      columns: getColumns(columns),
+      data: generateGridData(data),
+      search: { enabled: true, placeholder: "Type a keyword..." },
+      sort: false,
+      pagination: { limit: 14 }, // paged rows so headers have room
+      fixedHeader: true,
+      height: "70vh"
+    });
+
+    gridInstance.render(root);
+
+    // Initial widths + follow-up passes
+    applyInitialColumnWidths(tableSelector, columns, data);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() =>
+        applyInitialColumnWidths(tableSelector, columns, data)
+      );
+    }
+    setTimeout(() => applyInitialColumnWidths(tableSelector, columns, data), 180);
+
+    // ---------------- Delegated UI handlers (survive re-renders) ----------------
+
+    // Delete row / delete column
+    root.addEventListener("click", (event) => {
+      const el = event.target;
+      if (!(el instanceof Element)) return;
+
+      if (el.classList.contains("delete-row")) {
+        const rowIndex = Number(el.getAttribute("data-row"));
+        const next = getState();
+        if (Number.isInteger(rowIndex) && next.data[rowIndex]) {
+          next.data.splice(rowIndex, 1);
+          setState(next);
+          update();
+          const { columns: cols, data: rows } = getState();
+          recomputeObjectColWidth(tableSelector, cols, rows);
+        }
+      }
+
+      if (el.classList.contains("delete-column")) {
+        const colIndex = Number(el.getAttribute("data-col"));
+        handleDeleteColumn(colIndex);
+      }
+    });
+
+    // Toggle checkbox (change)
+    root.addEventListener("change", (event) => {
+      const el = event.target;
+      if (!(el instanceof Element)) return;
+      if (el.matches('input[type="checkbox"]')) {
+        const rowIndex = Number(el.getAttribute("data-row"));
+        const colIndex = Number(el.getAttribute("data-col"));
+        const checked = el.checked;
+        const next = getState();
+        if (next.data[rowIndex] && colIndex > 0) {
+          next.data[rowIndex][colIndex] = checked;
+          setState(next);
+        }
+      }
+    });
+
+    // Live rename: ATTRIBUTE (header) — state only; width handled by inline debounced handler
+    root.addEventListener("input", (e) => {
+      const el = e.target;
+      if (!(el instanceof Element)) return;
+      if (!el.classList.contains("rename-attribute")) return;
+
+      const colIndex = Number(el.getAttribute("data-col"));
+      const val = el.value;
+
+      const next = getState();
+      if (next.columns[colIndex] !== val) {
+        next.columns[colIndex] = val;
+        setState(next);
+      }
+      // ❌ Removed duplicate width calls here (no desiredAttrPx / scheduleColumnWidthPx)
+    });
+
+    // Commit attribute rename on Enter/blur (refresh header DOM)
+    root.addEventListener(
+      "keydown",
+      (e) => {
+        const el = e.target;
+        if (!(el instanceof Element)) return;
+        if (!el.classList.contains("rename-attribute")) return;
+        if (e.key !== "Enter") return;
+        e.stopPropagation();
+        gridApiUpdate();
+      }
+    );
+    root.addEventListener(
+      "blur",
+      (e) => {
+        const el = e.target;
+        if (!(el instanceof Element)) return;
+        if (!el.classList.contains("rename-attribute")) return;
+        gridApiUpdate();
+      },
+      true
+    );
+
+    // Live rename: OBJECT (first column)
+    root.addEventListener("input", (e) => {
+      const el = e.target;
+      if (!(el instanceof Element)) return;
+      if (!el.classList.contains("rename-object")) return;
+
+      const rowIndex = Number(el.getAttribute("data-row"));
+      const val = el.value;
+
+      const next = getState();
+      if (next.data[rowIndex] && next.data[rowIndex][0] !== val) {
+        next.data[rowIndex][0] = val;
+        setState(next);
+      }
+
+      // live-resize first column while typing
+      const { columns: cols, data: rows } = getState();
+      recomputeObjectColWidth(tableSelector, cols, rows);
+    });
+
+    // Commit object rename on Enter/blur
+    root.addEventListener(
+      "keydown",
+      (e) => {
+        const el = e.target;
+        if (!(el instanceof Element)) return;
+        if (!el.classList.contains("rename-object")) return;
+        if (e.key !== "Enter") return;
+        e.stopPropagation();
+        gridApiUpdate();
+        const { columns: cols, data: rows } = getState();
+        recomputeObjectColWidth(tableSelector, cols, rows);
+      }
+    );
+    root.addEventListener(
+      "blur",
+      (e) => {
+        const el = e.target;
+        if (!(el instanceof Element)) return;
+        if (!el.classList.contains("rename-object")) return;
+        gridApiUpdate();
+        const { columns: cols, data: rows } = getState();
+        recomputeObjectColWidth(tableSelector, cols, rows);
+      },
+      true
+    );
+  }
+
+  function handleDeleteColumn(colIndex) {
+    if (!Number.isInteger(colIndex) || colIndex <= 0) return; // protect "Object" column
+    const prevWidths = snapshotColumnWidths(tableSelector);
+    const next = getState();
+    if (colIndex >= next.columns.length) return;
+
+    next.columns.splice(colIndex, 1);
+    next.data = next.data.map((row) => row.filter((_, i) => i !== colIndex));
+    setState(next);
+
+    update();
+
+    // Restore perceived widths so the layout doesn’t jump
+    nextFrame(() => {
+      applyColumnWidths(tableSelector, prevWidths, colIndex);
+      const container = document.querySelector(tableSelector);
+      forceReflow(container?.querySelector(".gridjs-wrapper"));
+      // recompute first column as it may have shifted visually
+      const { columns: cols, data: rows } = getState();
+      recomputeObjectColWidth(tableSelector, cols, rows);
+    });
+  }
+
+  // Rebuild grid with current store data and re-apply widths
+  function update() {
+    if (!gridInstance) {
+      mount();
+      return;
+    }
+    const { data, columns } = getState();
+    gridInstance
+      .updateConfig({
+        columns: getColumns(columns),
+        data: generateGridData(data),
+        search: { enabled: true, placeholder: "Type a keyword..." },
+        sort: false,
+        pagination: { limit: 14 },
+        fixedHeader: true,
+        height: "70vh"
+      })
+      .forceRender();
+
+    applyInitialColumnWidths(tableSelector, columns, data);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() =>
+        applyInitialColumnWidths(tableSelector, columns, data)
+      );
+    }
+    setTimeout(() => applyInitialColumnWidths(tableSelector, columns, data), 150);
+  }
+
+  // Internal helper used by delegated rename commits
+  function gridApiUpdate() {
+    const { data, columns } = getState();
+    gridInstance
+      .updateConfig({
+        columns: getColumns(columns),
+        data: generateGridData(data),
+        search: { enabled: true, placeholder: "Type a keyword..." },
+        sort: false,
+        pagination: { limit: 14 },
+        fixedHeader: true,
+        height: "70vh"
+      })
+      .forceRender();
+    applyInitialColumnWidths(tableSelector, columns, data);
+  }
+
+  function destroy() {
+    const root = document.querySelector(tableSelector);
+    gridInstance?.destroy?.();
+    gridInstance = null;
+    if (root) root.innerHTML = "";
+  }
+
+  // First mount immediately (container is created lazily by index.js)
+  mount();
+
+  return { update, destroy };
+}
+
+/* ------------------------------ Small utils ------------------------------ */
+
+function escapeAttr(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+// Observers related to the Grid.js table
+
+// Re-run a callback whenever pagination DOM changes (page switch)
+function watchPagination(tableSelector, onChange) {
+  const root = document.querySelector(tableSelector);
+  const pager = root?.querySelector(".gridjs-pagination");
+  if (!pager) return;
+  const mo = new MutationObserver(() => onChange());
+  mo.observe(pager, { childList: true, subtree: true });
+  root._pagerObserver = mo; // keep a handle if you need to disconnect later
+}
+
+// Re-run on container resize (useful when sidebars open/close)
+function watchResize(tableSelector, onResize) {
+  const root = document.querySelector(tableSelector);
+  if (!root) return;
+  const ro = new ResizeObserver(() => onResize());
+  const wrapper = root.querySelector(".gridjs-wrapper") || root;
+  ro.observe(wrapper);
+  root._resizeObserver = ro;
+}
+
+// File parsers (CSV / XLSX / CXT) + normalizer used by uploads.
 
 function normalizeCell(v) {
   if (v == null) return false;
@@ -6422,29 +7009,15 @@ async function parseXLSXFile(file) {
 
 async function parseCXTFile(file) {
   const text = await file.text();
-
-  // DO NOT filter out blank lines; they are meaningful in .cxt
   const lines = text.split(/\r?\n/).map(l => l.replace(/\r/g, "")); // keep empties
-
   let idx = 0;
-
-  // header (usually "B")
-  (lines[idx++] ?? "").trim();
-
-  // context name: may be empty line
-  (lines[idx++] ?? ""); // keep as-is; can be ""
-
-  // counts
+  (lines[idx++] ?? "").trim(); // usually "B"
+  (lines[idx++] ?? "");   // may be empty
   let objCount = parseInt((lines[idx++] ?? "").trim(), 10);
   let attrCount = parseInt((lines[idx++] ?? "").trim(), 10);
-  if (isNaN(objCount) || isNaN(attrCount)) {
-    throw new Error("Invalid CXT header (object/attribute counts).");
-  }
+  if (isNaN(objCount) || isNaN(attrCount)) throw new Error("Invalid CXT header (object/attribute counts).");
+  if (((lines[idx] ?? "").trim()) === "") idx++;  // optional blank
 
-  // optional blank separator before object names
-  if (((lines[idx] ?? "").trim()) === "") idx++;
-
-  // read object names (skip accidental extra blanks)
   const objects = [];
   for (let i = 0; i < objCount; i++) {
     let s = (lines[idx++] ?? "");
@@ -6452,7 +7025,6 @@ async function parseCXTFile(file) {
     objects.push(s.trim());
   }
 
-  // read attribute names (skip accidental extra blanks)
   const attributes = [];
   for (let j = 0; j < attrCount; j++) {
     let s = (lines[idx++] ?? "");
@@ -6460,27 +7032,26 @@ async function parseCXTFile(file) {
     attributes.push(s.trim());
   }
 
-  // optional blank separator before incidence matrix
-  if (((lines[idx] ?? "").trim()) === "") idx++;
+  if (((lines[idx] ?? "").trim()) === "") idx++;  // optional blank
 
-  // incidence rows: exactly attrCount chars per row; skip stray blanks
   const matrix = [];
   for (let r = 0; r < objCount; r++) {
     let row = (lines[idx++] ?? "");
     while (row.trim() === "" && idx < lines.length) row = (lines[idx++] ?? "");
     row = row.trim();
-
-    if (row.length !== attrCount) {
-      throw new Error(`CXT row ${r} length ${row.length} != ${attrCount}`);
-    }
+    if (row.length !== attrCount) throw new Error(`CXT row ${r} length ${row.length} != ${attrCount}`);
     matrix.push([...row].map(c => (c === "X" || c === "x" ? true : false)));
   }
-
   return { objects, attributes, matrix };
 }
 
-// ------------------ Editor Init ------------------
-
+/**
+ * Initialize the Formal Context editor and wire the surrounding UI.
+ *
+ * Lazy-mount behavior:
+ *  - No table is rendered on load.
+ *  - Table mounts the first time the user performs an action (Show/Create/Add/…).
+ */
 function initContextEditor(opts = {}) {
   const {
     tableContainer = "#table-content",
@@ -6495,343 +7066,312 @@ function initContextEditor(opts = {}) {
     onGraphReady = () => {}
   } = opts;
 
-  // Demo defaults
-  let defaultData = [
-    ["boy", false, false, true, true],
-    ["girl", false, true, true, false],
-    ["man", true, false, false, true],
-    ["woman", true, true, false, false],
+  /* ---------- Defaults (used only when the user clicks "Show") ---------- */
+  const defaultData = [
+    ["boy",   false, false, true,  true ],
+    ["girl",  false, true,  true,  false],
+    ["man",   true,  false, false, true ],
+    ["woman", true,  true,  false, false],
   ];
-  let defaultColumns = ["Object", "adult", "female", "juvenile", "male"];
+  const defaultColumns = ["Object", "adult", "female", "juvenile", "male"];
 
-  // --- State ---
-  let data = [];
-  let columns = [];
-  let gridInstance = null;
+  // Remember last uploaded things (until cleared via Create)
+  let uploadedData = null;      // [[obj, ..bools], ...]
+  let uploadedColumns = null;   // ["Object", ...attrs]
+  let uploadedGraph = null;     // precomputed lattice JSON
+  let uploadedContext = null;   // {objects, properties, context}
 
-  // uploaded
-  let uploadedData = null;
-  let uploadedColumns = null;
-  let uploadedGraph = null;     // if user uploads a lattice JSON
-  let uploadedContext = null;   // if user uploads a context
+  // Boot empty; nothing to render yet
+  init({ data: [], columns: [] });
 
-  // -------- Grid.js table helpers --------
-  function initTable(d, c, opts2 = {}) {
-    data = JSON.parse(JSON.stringify(d));
-    columns = JSON.parse(JSON.stringify(c));
+  // Hide UI parts on load (also add class="hidden" in HTML for no-flash)
+  const actionsEl = document.querySelector(actionsBar);
+  const exportEl  = document.querySelector(exportDropdown);
+  const tableEl   = document.querySelector(tableContainer);
+  actionsEl?.classList.add("hidden");
+  exportEl?.classList.add("hidden");
+  tableEl?.classList.add("hidden");
 
-    if (gridInstance) {
-      gridInstance.destroy();
-      gridInstance = null;
-    }
+  // Grid instance is created lazily
+  let gridApi = null;
+  let observersBound = false;
 
-    const container = document.querySelector(tableContainer);
-    if (!container) return;
-    container.innerHTML = "";
+  /**
+   * Ensure the Grid.js table is mounted. No-op if already mounted.
+   * Also unhides controls and binds observers (once).
+   */
+  function ensureTableMounted() {
+    if (gridApi) return;
 
-    gridInstance = new Ln({
-      columns: getColumns(),
-      data: generateGridData(),
-      search: true,
-      sort: true,
-      pagination: { limit: 10 }
+    gridApi = initTable({
+      tableSelector: tableContainer,
+      getState: () => get(),
+      setState: (next) => set(next)
     });
 
-    gridInstance.render(container);
-    const bar = document.querySelector(actionsBar);
-    if (bar) bar.classList.remove("hidden");
+    tableEl?.classList.remove("hidden");
+    actionsEl?.classList.remove("hidden");
+    exportEl?.classList.remove("hidden");
 
-    if (opts2.focus) setTimeout(() => {
-      const input = container.querySelector("input");
-      if (input) input.focus();
-    }, 0);
-  }
-
-  function renderObjectName(value, rowIndex) {
-    return G(`
-      <div style="display:flex;align-items:center;">
-        <input type="text" value="${value}" data-row="${rowIndex}" class="rename-object" />
-        <button class="delete-row" data-row="${rowIndex}" style="margin-left:6px;color:red;">🗑️</button>
-      </div>
-    `);
-  }
-
-  function renderCheckbox(value, rowIndex, colIndex) {
-    if (colIndex === 0) return renderObjectName(value, rowIndex);
-    return G(`<input type="checkbox" ${value ? "checked" : ""} data-row="${rowIndex}" data-col="${colIndex}" />`);
-  }
-
-  function generateGridData() {
-    return data.map((row, rowIndex) =>
-      row.map((value, colIndex) => renderCheckbox(value, rowIndex, colIndex))
-    );
-  }
-
-  function getColumns() {
-    return columns.map((col, index) => ({
-      id: `col-${index}`,
-      name: index === 0
-        ? col
-        : w("div", { style: "display:flex;align-items:center;" }, [
-            w("input", {
-              type: "text",
-              value: col,
-              "data-col": String(index),
-              className: "rename-attribute",
-              onkeydown: (event) => {
-                if (event.key === "Enter") {
-                  columns[index] = event.target.value;
-                  updateTableData();
-                }
-              }
-            }),
-            w("button", {
-              className: "delete-column",
-              "data-col": String(index),
-              style: "margin-left:6px;color:red;",
-              onclick: (event) => handleDeleteColumn(event, index)
-            }, "🗑️")
-          ])
-    }));
-  }
-
-  function updateTableData(opts2 = {}) {
-    if (!gridInstance) return;
-    gridInstance.updateConfig({
-      columns: getColumns(),
-      data: generateGridData(),
-      search: true,
-      sort: true,
-      pagination: { limit: 10 }
-    }).forceRender();
-
-    if (opts2.focus) {
-      const container = document.querySelector(tableContainer);
-      if (!container) return;
-      setTimeout(() => {
-        const input = container.querySelector("input");
-        if (input) input.focus();
-      }, 0);
+    if (!observersBound) {
+      const reapply = () => {
+        const { data, columns } = get();
+        if (!columns.length) return; // nothing to size yet
+        applyInitialColumnWidths(tableContainer, columns, data);
+      };
+      watchPagination(tableContainer, reapply);
+      watchResize(tableContainer, reapply);
+      observersBound = true;
     }
   }
 
-  function addRow() {
-    const newRow = ["New Object", ...Array(columns.length - 1).fill(false)];
-    data.push(newRow);
-    updateTableData({ focus: true });
-  }
+  /* ---------- Create blank context modal ---------- */
+  function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
 
-  function addColumn() {
-    const newAttributeName = `New Attribute ${columns.length}`;
-    columns.push(newAttributeName);
-    data.forEach(row => row.push(false));
-    updateTableData({ focus: true });
-  }
-
-  function handleDeleteColumn(_event, colIndex) {
-    if (colIndex > 0 && colIndex < columns.length) {
-      columns.splice(colIndex, 1);
-      data = data.map(row => row.filter((_, i) => i !== colIndex));
-      updateTableData();
-    }
-  }
-
-  // -------- Upload handling --------
-  const uploadEl = document.querySelector(uploadInput);
-  if (uploadEl) {
-    uploadEl.addEventListener("change", async (event) => {
-      const file = event.target?.files?.[0];
-      if (!file) return;
-
-      const name = (file.name || "").toLowerCase();
-      try {
-        // CSV
-        if (name.endsWith(".csv")) {
-          const { objects, attributes, matrix } = await parseCSVFile(file);
-          uploadedColumns = ["Object", ...attributes];
-          uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
-          uploadedContext = { objects, properties: attributes, context: matrix };
-          uploadedGraph = null;
-          alert("✅ CSV context loaded. Show or visualize it.");
-          return;
-        }
-        // XLSX
-        if (name.endsWith(".xlsx")) {
-          const { objects, attributes, matrix } = await parseXLSXFile(file);
-          uploadedColumns = ["Object", ...attributes];
-          uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
-          uploadedContext = { objects, properties: attributes, context: matrix };
-          uploadedGraph = null;
-          alert("✅ XLSX context loaded. Show or visualize it.");
-          return;
-        }
-        // CXT
-        if (name.endsWith(".cxt")) {
-          const { objects, attributes, matrix } = await parseCXTFile(file);
-          uploadedColumns = ["Object", ...attributes];
-          uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
-          uploadedContext = { objects, properties: attributes, context: matrix };
-          uploadedGraph = null;
-          alert("✅ CXT context loaded. Show or visualize it.");
-          return;
-        }
-        // JSON fallback
-        const text = await file.text();
-        const imported = JSON.parse(text);
-        if (imported.nodes && imported.links) {
-          uploadedGraph = imported;
-          uploadedContext = null;
-          alert("✅ Lattice JSON loaded. Click 'Visualize Lattice'.");
-        } else if (imported.objects && imported.properties && imported.context) {
-          uploadedColumns = ["Object", ...imported.properties];
-          uploadedData = imported.objects.map((obj, rowIdx) => ([obj, ...imported.context[rowIdx].map(normalizeCell)]));
-          uploadedContext = { objects: imported.objects, properties: imported.properties, context: imported.context };
-          uploadedGraph = null;
-          alert("✅ Formal context JSON loaded. Show or visualize it.");
-        } else if (Array.isArray(imported.data) && Array.isArray(imported.columns)) {
-          uploadedColumns = imported.columns.slice();
-          uploadedData = imported.data.map(row => [row[0], ...row.slice(1).map(normalizeCell)]);
-          uploadedContext = { objects: imported.data.map(r => r[0]), properties: imported.columns.slice(1), context: imported.data.map(r => r.slice(1)) };
-          uploadedGraph = null;
-          alert("✅ Formal context JSON loaded. Show or visualize it.");
-        } else {
-          alert("Invalid JSON format!");
-        }
-      } catch (err) {
-        alert("Error parsing file: " + err.message);
-      }
+  function buildBlankContext(rows, cols) {
+    const attrs = Array.from({ length: cols }, (_, j) => `attr_${j + 1}`);
+    const columnsNew = ["Object", ...attrs];
+    const dataNew = Array.from({ length: rows }, (_, i) => {
+      const name = `obj_${i + 1}`;
+      return [name, ...Array(cols).fill(false)];
     });
+    return { columnsNew, dataNew };
   }
 
-  // -------- Show / Create --------
-  const showBtnEl = document.querySelector(showBtn);
-  if (showBtnEl) {
-    showBtnEl.addEventListener("click", () => {
-      if (!uploadedData || !uploadedColumns) {
-        alert("Please upload a formal context file first.");
+  function makeCreateContextModal() {
+    const modal   = document.getElementById("create-context-modal");
+    if (!modal) return { open: () => {} };
+
+    const rowsInp = modal.querySelector("#ccm-rows");
+    const colsInp = modal.querySelector("#ccm-cols");
+    const okBtn   = modal.querySelector("#ccm-confirm");
+    const cancel  = modal.querySelector("#ccm-cancel");
+
+    const open = () => {
+      const { data, columns } = get();
+      rowsInp.value = String(data.length || 4);
+      colsInp.value = String(Math.max(0, (columns.length - 1)) || 4);
+      modal.classList.remove("hidden");
+      setTimeout(() => rowsInp.focus(), 0);
+    };
+    const close = () => modal.classList.add("hidden");
+
+    okBtn.addEventListener("click", () => {
+      const r = clamp(parseInt(rowsInp.value, 10) || 0, 1, 500);
+      const c = clamp(parseInt(colsInp.value, 10) || 0, 1, 500);
+
+      // Reset any uploaded state when creating a new blank context
+      uploadedData = uploadedColumns = uploadedContext = uploadedGraph = null;
+
+      const { columnsNew, dataNew } = buildBlankContext(r, c);
+      set({ data: dataNew, columns: columnsNew });
+
+      // Mount now (first visible action)
+      ensureTableMounted();
+      gridApi.update();
+
+      // Keep object col width in sync while empty
+      const px = desiredObjectColPx(columnsNew, dataNew);
+      scheduleColumnWidthPx(tableContainer, 0, px);
+
+      close();
+    });
+
+    cancel.addEventListener("click", close);
+    modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+
+    return { open, close };
+  }
+  const createCtxModal = makeCreateContextModal();
+
+  /* ---------- Buttons: Show / Create / Add Row / Add Column ---------- */
+  document.querySelector(showBtn)?.addEventListener("click", () => {
+    // Nothing visible yet; user explicitly asks to show something now
+    ensureTableMounted();
+    const tableD = Array.isArray(uploadedData) ? uploadedData : defaultData;
+    const tableC = Array.isArray(uploadedColumns) ? uploadedColumns : defaultColumns;
+    set({ data: tableD, columns: tableC });
+    gridApi.update();
+  });
+
+  document.querySelector(createBtn)?.addEventListener("click", (e) => {
+    e.preventDefault();
+    createCtxModal.open();
+  });
+
+  document.getElementById(stripHash(addRowBtn))?.addEventListener("click", () => {
+    ensureTableMounted();
+    const { data, columns } = get();
+    const next = { data: [...data, ["New Object", ...Array(Math.max(0, columns.length - 1)).fill(false)]], columns };
+    set(next);
+    gridApi.update();
+  });
+
+  document.getElementById(stripHash(addColBtn))?.addEventListener("click", () => {
+    ensureTableMounted();
+    const { data, columns } = get();
+    const newName = `New Attribute ${columns.length}`;
+    const next = {
+      columns: [...columns, newName],
+      data: data.map(r => [...r, false])
+    };
+    set(next);
+    gridApi.update();
+  });
+
+  /* ---------- Upload handling (lazy: do NOT mount immediately) ---------- */
+  document.querySelector(uploadInput)?.addEventListener("change", async (event) => {
+    const file = event.target?.files?.[0];
+    if (!file) return;
+
+    const name = (file.name || "").toLowerCase();
+    try {
+      if (name.endsWith(".csv")) {
+        const { objects, attributes, matrix } = await parseCSVFile(file);
+        uploadedColumns = ["Object", ...attributes];
+        uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
+        uploadedContext = { objects, properties: attributes, context: matrix };
+        uploadedGraph = null;
+        alert("✅ CSV context loaded. Click 'Show Formal Context' to display it.");
         return;
       }
-      initTable(uploadedData, uploadedColumns, { focus: true });
-    });
-  }
-
-  const createBtnEl = document.querySelector(createBtn);
-  if (createBtnEl) {
-    createBtnEl.addEventListener("click", () => {
-      initTable(defaultData, defaultColumns, { focus: true });
-    });
-  }
-
-  // -------- Row/col actions --------
-  document.addEventListener("click", (event) => {
-    const el = event.target;
-    if (!(el instanceof Element)) return;
-    if (el.id === stripHash(addRowBtn)) addRow();
-    if (el.id === stripHash(addColBtn)) addColumn();
-    if (el.classList.contains("delete-row")) {
-      const rowIndex = Number(el.getAttribute("data-row"));
-      data.splice(rowIndex, 1);
-      updateTableData();
-    }
-    if (el.classList.contains("delete-column")) {
-      const colIndex = Number(el.getAttribute("data-col"));
-      handleDeleteColumn(event, colIndex);
+      if (name.endsWith(".xlsx")) {
+        const { objects, attributes, matrix } = await parseXLSXFile(file);
+        uploadedColumns = ["Object", ...attributes];
+        uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
+        uploadedContext = { objects, properties: attributes, context: matrix };
+        uploadedGraph = null;
+        alert("✅ XLSX context loaded. Click 'Show Formal Context' to display it.");
+        return;
+      }
+      if (name.endsWith(".cxt")) {
+        const { objects, attributes, matrix } = await parseCXTFile(file);
+        uploadedColumns = ["Object", ...attributes];
+        uploadedData = objects.map((obj, i) => [obj, ...matrix[i]]);
+        uploadedContext = { objects, properties: attributes, context: matrix };
+        uploadedGraph = null;
+        alert("✅ CXT context loaded. Click 'Show Formal Context' to display it.");
+        return;
+      }
+      // JSON fallback
+      const text = await file.text();
+      const imported = JSON.parse(text);
+      if (imported.nodes && imported.links) {
+        uploadedGraph = imported;
+        uploadedContext = null;
+        alert("✅ Lattice JSON loaded. Click 'Visualize Lattice'.");
+      } else if (imported.objects && imported.properties && imported.context) {
+        uploadedColumns = ["Object", ...imported.properties];
+        uploadedData = imported.objects.map((obj, rowIdx) => [obj, ...imported.context[rowIdx].map(normalizeCell)]);
+        uploadedContext = { objects: imported.objects, properties: imported.properties, context: imported.context };
+        uploadedGraph = null;
+        alert("✅ Formal context JSON loaded. Click 'Show Formal Context' or 'Visualize Lattice'.");
+      } else if (Array.isArray(imported.data) && Array.isArray(imported.columns)) {
+        uploadedColumns = imported.columns.slice();
+        uploadedData = imported.data.map(row => [row[0], ...row.slice(1).map(normalizeCell)]);
+        uploadedContext = {
+          objects: uploadedData.map(r => r[0]),
+          properties: uploadedColumns.slice(1),
+          context: uploadedData.map(r => r.slice(1))
+        };
+        uploadedGraph = null;
+        alert("✅ Formal context JSON loaded. Click 'Show Formal Context' or 'Visualize Lattice'.");
+      } else {
+        alert("Invalid JSON format!");
+      }
+    } catch (err) {
+      alert("Error parsing file: " + err.message);
     }
   });
 
-  document.addEventListener("keydown", (event) => {
-    const el = event.target;
-    if (!(el instanceof Element)) return;
-    if (el.classList.contains("rename-object") && event.key === "Enter") {
-      const rowIndex = Number(el.getAttribute("data-row"));
-      data[rowIndex][0] = el.value;
-      updateTableData();
-    }
-    if (el.classList.contains("rename-attribute") && event.key === "Enter") {
-      const colIndex = Number(el.getAttribute("data-col"));
-      columns[colIndex] = el.value;
-      updateTableData();
-    }
-  });
+  /* ---------- Export ---------- */
+  document.querySelector(exportDropdown)?.addEventListener("change", (event) => {
+    const value = event.target?.value;
+    if (!value) return;
 
-  document.addEventListener("change", (event) => {
-    const el = event.target;
-    if (!(el instanceof Element)) return;
-    if (el.matches('input[type="checkbox"]')) {
-      const rowIndex = Number(el.getAttribute("data-row"));
-      const colIndex = Number(el.getAttribute("data-col"));
-      const checked = el.checked;
-      data[rowIndex][colIndex] = checked;
-    }
-  });
-
-  // -------- Export --------
-  const exportEl = document.querySelector(exportDropdown);
-  if (exportEl) {
-    exportEl.addEventListener("change", (event) => {
-      const value = event.target?.value;
-      if (!value) return;
-      const { objects, properties, contextMatrix } = currentContext();
-      if (value === "export-context-json") {
-        const serialized = { objects, properties, context: contextMatrix };
-        downloadBlob(JSON.stringify(serialized, null, 2), "formal_context.json", "application/json");
-      }
-      if (value === "export-context-csv") {
-        const header = columns.join(",");
-        const rows = data.map(row => row.join(",")).join("\n");
-        downloadBlob(header + "\n" + rows, "formal_context.csv", "text/csv");
-      }
-      if (value === "export-context-cxt") {
-        const lines = [];
-        lines.push("B");
-        lines.push(String(objects.length));
-        lines.push(String(properties.length));
-        lines.push("");
-        objects.forEach(o => lines.push(o));
-        properties.forEach(p => lines.push(p));
-        lines.push("");
-        contextMatrix.forEach(row => lines.push(row.map(v => (v ? "X" : ".")).join("")));
-        downloadBlob(lines.join("\n"), "formal_context.cxt", "text/plain");
-      }
+    const { objects, properties, contextMatrix } = currentContext();
+    if (!objects?.length || !properties?.length) {
+      alert("Nothing to export yet. Load or create a context first.");
       event.target.value = "";
-    });
+      return;
+    }
+
+    if (value === "export-context-json") {
+      const serialized = { objects, properties, context: contextMatrix };
+      downloadBlob(JSON.stringify(serialized, null, 2), "formal_context.json", "application/json");
+    }
+    if (value === "export-context-csv") {
+      const { data, columns } = get();
+      const header = columns.join(",");
+      const rows = data.map(row => row.join(",")).join("\n");
+      downloadBlob(header + "\n" + rows, "formal_context.csv", "text/csv");
+    }
+    if (value === "export-context-cxt") {
+      const lines = [];
+      lines.push("B");
+      lines.push(String(objects.length));
+      lines.push(String(properties.length));
+      lines.push("");
+      objects.forEach(o => lines.push(o));
+      properties.forEach(p => lines.push(p));
+      lines.push("");
+      contextMatrix.forEach(row => lines.push(row.map(v => (v ? "X" : ".")).join("")));
+      downloadBlob(lines.join("\n"), "formal_context.cxt", "text/plain");
+    }
+    event.target.value = "";
+  });
+
+  /* ---------- Visualize ---------- */
+  function resolveContextForVisualization() {
+    const grid = currentContext(); // {objects, properties, contextMatrix}
+    if (grid.objects?.length && grid.properties?.length) {
+      return { objects: grid.objects, properties: grid.properties, context: grid.contextMatrix };
+    }
+    if (uploadedContext && uploadedContext.objects?.length && uploadedContext.properties?.length) {
+      return { objects: uploadedContext.objects, properties: uploadedContext.properties, context: uploadedContext.context };
+    }
+    // No implicit defaults here; visualization is an explicit action
+    throw new Error("No context available. Load a file or click 'Show/Create Formal Context' first.");
   }
 
-  // -------- Visualize --------
-  const visBtnEl = document.querySelector(visualizeBtn);
-  if (visBtnEl) {
-    visBtnEl.addEventListener("click", async () => {
-      try {
-        if (uploadedGraph) {
-          // directly visualize a lattice JSON
-          onGraphReady(uploadedGraph);
-          return;
-        }
-        const { objects, properties, contextMatrix } = currentContext();
-        const payload = { objects, properties, context: contextMatrix };
-        const response = await fetch("http://localhost:3000/compute-lattice", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (!response.ok) throw new Error(await response.text());
-        const backendResult = await response.json();
-        const graphData = parseSerializedData(backendResult);
-        onGraphReady(graphData);
-      } catch (err) {
-        alert("Lattice computation failed: " + err.message);
+  function validateContext(ctx) {
+    const { objects, properties, context } = ctx;
+    if (!objects.length || !properties.length) throw new Error("Context is empty (no objects or attributes).");
+    if (!Array.isArray(context) || context.length !== objects.length) throw new Error("Context row count must equal number of objects.");
+    for (const row of context) {
+      if (!Array.isArray(row) || row.length !== properties.length) {
+        throw new Error("Each row must have a value for every attribute.");
       }
-    });
+    }
   }
 
-  // -------- helpers --------
-  function currentContext() {
-    const objects = data.map(row => row[0]);
-    const properties = columns.slice(1);
-    const contextMatrix = data.map(row => row.slice(1));
-    return { objects, properties, contextMatrix };
-  }
+  document.querySelector(visualizeBtn)?.addEventListener("click", async () => {
+    try {
+      if (uploadedGraph) { onGraphReady(uploadedGraph); return; }
 
+      const ctx = resolveContextForVisualization();
+      validateContext(ctx);
+
+      const response = await fetch("http://localhost:3000/compute-lattice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objects: ctx.objects,
+          properties: ctx.properties,
+          context: ctx.context
+        })
+      });
+      if (!response.ok) throw new Error(await response.text());
+      const backendResult = await response.json();
+      const graphData = parseSerializedData(backendResult);
+      onGraphReady(graphData);
+    } catch (err) {
+      alert("Lattice computation failed: " + err.message);
+      console.error(err);
+    }
+  });
+
+  /* ---------- Small helpers ---------- */
   function downloadBlob(content, filename, type) {
     const blob = new Blob([content], { type });
     const a = document.createElement("a");
@@ -6841,17 +7381,17 @@ function initContextEditor(opts = {}) {
     a.click();
     document.body.removeChild(a);
   }
+  function stripHash(sel) { return sel && sel.charAt(0) === "#" ? sel.slice(1) : sel; }
 
-  function stripHash(sel) {
-    return sel && sel.charAt(0) === "#" ? sel.slice(1) : sel;
-  }
-
+  // Public API if you need to feed an external context programmatically
   return {
     getContext: () => currentContext(),
     setContext: ({ objects, properties, context }) => {
       uploadedColumns = ["Object", ...properties];
       uploadedData = objects.map((obj, i) => [obj, ...context[i]]);
-      initTable(uploadedData, uploadedColumns, { focus: true });
+      set({ data: uploadedData, columns: uploadedColumns });
+      ensureTableMounted();
+      gridApi.update();
     }
   };
 }
