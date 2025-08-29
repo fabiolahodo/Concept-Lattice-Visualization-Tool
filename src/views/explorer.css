@@ -33,10 +33,12 @@ body {
   min-height: 320px;
 }
 
+
 .table-scroll-wrapper {
   max-height: 400px;
   max-width: 100%;
-  overflow: auto;
+  overflow-y: hidden;   
+  overflow-x: auto;
   border: 1px solid #ccc;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -48,6 +50,7 @@ body {
 .table-container {
   width: 100%;
   display: block; 
+  overflow-x: auto;
 }
 
 /* If you ever render a native table with this id */
@@ -57,38 +60,123 @@ body {
   border-collapse: collapse;
 }
 
-/* Grid.js sizing/scroll behaviour */
+/* =======================
+   Grid.js — compact & adaptive
+   ======================= */
+
+/* Sizing / scroll */
 .gridjs-wrapper table {
-  min-width: max-content !important;
-  table-layout: auto !important;
+  table-layout: fixed !important;   /* predictable columns; JS sets widths on <th> */
+  width: 100% !important;
+  min-width: 0 !important;          /* allow shrink */
+}
+.gridjs-wrapper {
+  overflow: auto !important;
+  max-height: 70vh;                  /* works with Grid.js fixedHeader+height */
+  position: relative;               /*needed for freezing columnheader and rowheader*/
 }
 .gridjs-container {
   overflow-x: auto;
   width: 100%;
+  font-size: 13px;                   /* slightly denser typography */
 }
+.gridjs-search { margin-bottom: 8px; }
 
-/* Scope cell styling to Grid.js table only (avoid affecting sidebar tables) */
-.gridjs-table td,
-.gridjs-table th {
-  min-width: 100px;
-  padding: 10px;
-  text-align: center;
+/* Cells */
+.gridjs-table th,
+.gridjs-table td {
+  padding: 6px 8px;                  /* tighter rows */
   border: 1px solid #ddd;
-  white-space: nowrap;      
-  overflow-wrap: anywhere;  
+  white-space: nowrap;               /* single line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  text-align: center;
 }
 
-/* Rename inputs inside header / first column */
-.rename-object-container { 
-  display: flex; align-items: center; }
+/* Column width safety mins — JS provides actual widths via <th style="width:…"> */
+.gridjs-tr > .gridjs-th:first-child,
+.gridjs-tr > .gridjs-td:first-child {
+  min-width: 90px;                   /* row heading compact */
+  text-align: left;
+}
+.gridjs-tr > .gridjs-th:nth-child(n+2),
+.gridjs-tr > .gridjs-td:nth-child(n+2) {
+  min-width: 44px;                   /* attributes can be very narrow */
+  text-align: left;
+}
+
+.gridjs-th .gridjs-th-content { 
+  max-width: none !important; 
+  width: auto !important;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+
+/* Checkboxes look lighter and centered */
+.gridjs-td input[type="checkbox"] {
+  transform: scale(0.95);
+  margin: 0 auto;
+  display: block;
+}
+
+/* ===== Rename inputs (header / first column) ===== */
+/* Object column wrapper */
+.rename-object-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Attribute header wrapper */
+.rename-attribute-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* keep centered */
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Inputs */
+.rename-object {
+  text-align: left;
+}
+
+.rename-attribute {
+  text-align: center;
+  white-space: nowrap;       /* keep the label on one line */
+  text-overflow: ellipsis;   /* show "…" if it overflows */
+  overflow: hidden;          /* hide overflowed text */
+  max-width: 160px;          /* optional: set a sane max width per column */
+}
+
 .rename-object,
 .rename-attribute {
   border: none;
   background: transparent;
-  font-size: 1rem;
-  text-align: center;
+  font-size: 12px;
   transition: border 0.2s ease-in-out;
+
+  padding: 2px;
+  width: 100%;              /* expand to column width */
+  min-width: 8ch;           /* comfy min */
+  max-width: none;          /* no artificial cap */
+  box-sizing: border-box;   /* padding included */
+  flex: 1 1 auto;           /* flex nicely inside cell */
 }
+
+/* Alignment differences */
+.rename-object {
+  text-align: left;         /* easier to scan object names */
+}
+.rename-attribute {
+  text-align: left;       /* keep attributes centered */
+}
+
+/* Focus state */
 .rename-object:focus,
 .rename-attribute:focus {
   border: 1px solid #2572d6;
@@ -96,100 +184,53 @@ body {
   outline: none;
 }
 
-/* Delete controls (hidden until hover) */
+/* ===== Delete controls (small, only on hover) ===== */
 .delete-row,
 .delete-column {
   background: transparent;
   border: none;
-  color: #2572d6;
   cursor: pointer;
-  font-size: 1.2rem;
-  padding: 0 5px;
-  visibility: hidden;                 /* base hidden */
-  transition: visibility 0.2s ease-in-out;
+  visibility: hidden;                /* hidden by default */
+  line-height: 1;
 }
-.delete-row:hover,
-.delete-column:hover { color: #2572d6; }
 
-/* Reveal delete buttons only in Grid.js table on hover */
+/* keep header inputs from shrinking too small */
+.gridjs-th input.rename-attribute { min-width: 44px; }
+.gridjs-thead .gridjs-th, .gridjs-tbody td { white-space: nowrap; }
+
+/* Let header text expand to the pixel width we set in JS */
+.gridjs-th-content { max-width: none !important; }
+.gridjs-thead .gridjs-th, .gridjs-tbody td { white-space: nowrap; } /* optional, avoids wrapping */
+/* Row delete (object column) — compact */
+.gridjs-td .delete-row {
+  font-size: 12px;
+  padding: 0 2px;
+  color: #6c757d;
+}
 .gridjs-tr:hover .delete-row { visibility: visible !important; }
-.gridjs-th:hover .delete-column,
-.gridjs-thead .gridjs-th:hover .delete-column { visibility: visible !important; }
+.gridjs-table .delete-row:hover { color: #d00; }
 
-/* Responsive tweaks */
+/* Header delete (attribute columns) — compact */
+.gridjs-th .delete-column {
+  font-size: 12px;
+  padding: 0 2px;
+  margin: 0;
+  color: #6c757d;
+}
+
+.gridjs-th:hover .delete-column,
+.gridjs-thead .gridjs-th:hover .delete-column {
+  visibility: visible !important;
+}
+.gridjs-th .delete-column:hover { color: #d00; }
+
+/* Responsive tweak */
 @media (max-width: 768px) {
   .table-container { overflow-x: scroll; }
-  .gridjs-table td, .gridjs-table th { min-width: 80px; padding: 5px; }
+  .gridjs-table th, .gridjs-table td { padding: 5px; }
 }
-
 
 .hidden { display: none !important; }
-
-/* base */
-.delete-row, .delete-column { visibility: hidden; }
-
-/* Primary action buttons — match color to "Load JSON File" button */
-#load-json-file,
-#show-formal-context,
-#create-formal-context,
-#visualize-lattice {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 12px;
-}
-
-#load-json-file:hover,
-#show-formal-context:hover,
-#create-formal-context:hover,
-#visualize-lattice:hover {
-  background: #0069d9;
-}
-
-/* Table delete icons — match primary on hover */
-.delete-row,
-.delete-column {
-  color: #007bff !important;      
-}
-
-.delete-row:hover,
-.delete-column:hover {
-  color: #0069d9 !important;      
-}
-
-/* Make "Add Row" and "Add Column" match the other buttons */
-#add-row,
-#add-column {
-  background-color: #007bff !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: 6px;
-  padding: 10px 16px;
-  font-weight: 600;
-}
-#add-row:hover,
-#add-column:hover {
-  background-color: #0056d6 !important;
-}
-
-/* Make delete buttons go blue on hover inside the Grid.js table */
-.gridjs-table .delete-row:hover,
-.gridjs-table .delete-column:hover {
-  background-color: #007bff !important;
-  color: #fff !important;        
-  border-radius: 4px;
-}
-
-/* Optional: keep the delete buttons subtle when not hovered */
-.gridjs-table .delete-row,
-.gridjs-table .delete-column {
-  color: #6c757d;                 /* subtle gray */
-  background: transparent;
-  border: none;
-  padding: 0 6px;
-}
-
 
 .panel-area {
   padding: 15px;
@@ -488,3 +529,96 @@ select, input[type="file"] {
   background-color: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
+
+#create-context-modal.hidden { display: none !important; }
+#create-context-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.25);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2000;
+}
+#create-context-modal .ccm-card {
+  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  padding: 16px; width: 320px; box-shadow: 0 6px 20px rgba(0,0,0,.15);
+}
+#create-context-modal input[type="number"] { width: 100%; box-sizing: border-box; }
+
+
+/* =======================
+   Freeze header row + first column (Grid.js)
+   ======================= */
+
+/* Ensure separate borders so sticky cells don't glitch at seams */
+.gridjs-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Freeze header (attributes) */
+.gridjs-thead .gridjs-th {
+  position: sticky;
+  top: 0;
+  background: #f9f9f9;     /* covers content when scrolling */
+  z-index: 3;              /* above body cells and first column */
+  box-shadow: 0 2px 2px rgba(0,0,0,0.05); /* subtle divider */
+  overflow: visible;
+
+}
+
+/* Freeze first column (objects) in both header and body */
+.gridjs-tr > .gridjs-th:first-child,
+.gridjs-tr > .gridjs-td:first-child {
+  position: sticky;
+  left: 0;
+  background: #f9f9f9;
+  z-index: 2;              /* sits under sticky header but above normal cells */
+  box-shadow: 2px 0 2px rgba(0,0,0,0.05); /* subtle divider */
+  text-align: left;        /* keep object names left-aligned */
+}
+
+/* Top-left corner (intersection) should sit above everything */
+.gridjs-thead .gridjs-th:first-child {
+  z-index: 4;              /* higher than header row + first column */
+}
+
+/* Keep rename inputs usable in sticky cells */
+.gridjs-th input.rename-attribute,
+.gridjs-td:first-child .rename-object {
+  background: transparent;
+}
+
+/* Optional: make sticky backgrounds match your table body if it's white */
+.gridjs-tr > .gridjs-th:first-child,
+.gridjs-tr > .gridjs-td:first-child,
+.gridjs-thead .gridjs-th {
+  background-clip: padding-box; /* avoids border bleed on overlap */
+}
+
+
+#document-path .muted {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+#document-path .crumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1.2;
+  font-size: 0.85em;   /* 🔹 makes Context/Lattice text smaller */
+}
+
+#document-path .crumb .icon {
+  font-size: 1em;      /* keep icons same size as text */
+  width: 1.2em;
+  text-align: center;
+}
+
+#document-path .crumb.is-active {
+  font-weight: 600;
+  background: #fff;
+  outline: 1px solid #ddd;
+}
+

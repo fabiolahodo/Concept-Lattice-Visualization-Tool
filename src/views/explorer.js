@@ -6,7 +6,7 @@ import { setupFilterControls } from '../features/setupFilters.js';
 import { createLattice } from '../lattice/lattice.js';
 import { calculateMetrics } from '../lattice/metrics.js';
 
-import { initContextEditor } from '../context-editor/formalContext.js';
+import { initContextEditor } from '../context-editor/index.js';
 /*
 import { Grid, html, h } from "gridjs";
 import { parseSerializedData } from '../lattice/latticeParser.js';
@@ -475,7 +475,7 @@ document.getElementById("visualize-lattice").addEventListener("click", async () 
 });
 */
 
-initContextEditor({
+const editor = initContextEditor({
     tableContainer : '#table-content',
     actionsBar     : '#table-actions',
     uploadInput    : '#upload-json',

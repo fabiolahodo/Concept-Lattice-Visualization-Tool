@@ -12,9 +12,13 @@
   <!-- ✅ jsPDF for PDF Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-   <!-- ✅ Style -->
-   <link rel="stylesheet" href="explorer.css" />
-   <link rel="stylesheet" href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css"> 
+  <!-- SheetJS for .xlsx parsing -->
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+
+  <!-- ✅ Style -->
+  <link rel="stylesheet" href="explorer.css" />
+  <link rel="stylesheet" href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css"> 
 
 </head>
 <body>
@@ -22,15 +26,18 @@
 <div id="sidebar">
 
   <div class="sidebar-section">
-    <h4>Document</h4>
-    <ul>
-      <li>Context
+  <h4>Document</h4>
+  <div id="document-path">Currently: –</div>
+  <!--
+  <ul id="document-tree">
+      <li id="doc-context" data-state="context">Context
         <ul>
-          <li>Lattice 1</li>
-          <li>≃ Implications</li>
+          <li id="doc-lattice" data-state="lattice">Lattice</li>
+          <li id="doc-implications" data-state="implications">≃ Implications</li>
         </ul>
       </li>
     </ul>
+  -->
   </div>
 
   <div class="sidebar-section" id="metrics-container">
@@ -70,9 +77,9 @@
 
    <!-- File Upload -->
    <div style="margin-top:10px;">
-   <label for="upload-json"><strong>Upload Formal Context (.json):</strong></label>
+   <label for="upload-json"><strong>Upload Formal Context (.json,.csv,.xlsx,.cxt):</strong></label>
    <div id="file-input-wrapper"> 
-   <input type="file" id="upload-json" accept=".json">
+   <input type="file" id="upload-json" accept=".json,.csv,.xlsx,.cxt">
    </div>
   </div>
 
@@ -83,6 +90,30 @@
   <button id="create-formal-context">Create Formal Context</button>
   <button id="visualize-lattice" class="btn">Visualize Lattice</button>
   </div>
+
+  <!-- Create Context modal -->
+<div id="create-context-modal" class="hidden">
+  <div class="ccm-card">
+    <h3 style="margin:0 0 10px;">Create Formal Context</h3>
+
+    <label style="display:block;margin:8px 0;">
+      Rows (objects):
+      <input id="ccm-rows" type="number" min="1" max="500" value="4" />
+    </label>
+
+    <label style="display:block;margin:8px 0;">
+      Columns (attributes):
+      <input id="ccm-cols" type="number" min="1" max="500" value="4" />
+    </label>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+      <button id="ccm-cancel">Cancel</button>
+      <button id="ccm-confirm" style="background:#007bff;color:#fff;border:none;padding:6px 12px;border-radius:4px;">
+        Create
+      </button>
+    </div>
+  </div>
+</div>
 
 
   <!-- Table renders here -->
@@ -97,7 +128,7 @@
   </div>
 
   <!-- Export -->
-  <select id="context-export-dropdown">
+  <select id="context-export-dropdown" class="hidden">
   <option value="">Export Context As...</option>
   <option value="export-context-csv">CSV</option>
   <option value="export-context-cxt">CXT</option>
@@ -209,7 +240,7 @@
   </div>
 </div> <!-- end #main -->
 
-<!-- === Implication Confirmation Modal === -->
+<!-- === Implication Confirmation Modal ===
 <div id="modal">
     <p><strong>Confirm or reject implication</strong></p>
     <p>Is it true, that when object has attribute(s) Attr 8, Attr 9, that it also has attribute(s) Attr 1, ..., Attr 7?</p>
@@ -219,7 +250,7 @@
       <button onclick="hideModal()">Stop Attribute Exploration</button>
     </div>
 </div>
-
+ -->
 <!-- === JavaScript Logic === -->
 
  <script>
@@ -234,12 +265,65 @@
       document.getElementById("modal").style.display = "none";
     }
   </script>
-  <!--
-  <script src="../context-editor/generateTable.js"></script>
-  <script type="module" src="../lattice/lattice.js"></script>
-  <script type="module" src="../lattice/metrics.js"></script>
-  <script type="module" src="../features/export.js"></script>
-  -->
+
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const pathEl = document.getElementById("document-path");
+
+  const LABELS = {
+    context: "Context",
+    lattice: "Lattice",
+    implications: "Implications"
+  };
+
+  const ICONS = {
+    context: "⌗",
+    lattice: "🕸️",          // pick any symbol you like (🔷, 🕸️, ⌗, etc.)
+    implications: "≃"
+  };
+
+  function renderPath(parts) {
+    // parts: ["context"] or ["context","lattice"] etc.
+    if (!parts || parts.length === 0) {
+      pathEl.innerHTML = "Currently: –";
+      return;
+    }
+    const lines = ['<div class="muted">Currently:</div>'];
+    parts.forEach((p, i) => {
+      const isActive = i === parts.length - 1;
+      lines.push(
+        `<div class="crumb ${isActive ? 'is-active' : 'is-parent'}">
+           <span class="icon">${ICONS[p] ?? ""}</span>
+           <span class="label">${LABELS[p] ?? p}</span>
+         </div>`
+      );
+    });
+    pathEl.innerHTML = lines.join("");
+  }
+
+  function setState(state) {
+    // Map state to path parts
+    const parts =
+      state === "context" ? ["context"] :
+      state === "lattice" ? ["context", "lattice"] :
+      state === "implications" ? ["context", "implications"] : [];
+    renderPath(parts);
+  }
+
+  // start idle
+  setState("idle");
+
+  // wire buttons
+  const $ = id => document.getElementById(id);
+  $("show-formal-context")?.addEventListener("click", () => setState("context"));
+  $("create-formal-context")?.addEventListener("click", () => setState("context"));
+  $("visualize-lattice")?.addEventListener("click", () => setState("lattice"));
+
+  // expose if you want to trigger from elsewhere
+  window.setDocumentBreadcrumbState = setState;
+});
+</script>
+
 
 <!-- ✅ Main logic -->
 <script type="module" src="../../dist/bundle.js"></script>
