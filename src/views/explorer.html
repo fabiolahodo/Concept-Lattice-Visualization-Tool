@@ -72,12 +72,12 @@
     <div>
       
       <p class="description">
-  You can either upload your own formal context, show it here, or start from a default template.
+  You can either upload your own formal context(.json,.csv,.xlsx,.cxt), show it here, or start from a default template.
       </p>
 
    <!-- File Upload -->
    <div style="margin-top:10px;">
-   <label for="upload-json"><strong>Upload Formal Context (.json,.csv,.xlsx,.cxt):</strong></label>
+   <label for="upload-json"><strong>Upload Formal Context :</strong></label>
    <div id="file-input-wrapper"> 
    <input type="file" id="upload-json" accept=".json,.csv,.xlsx,.cxt">
    </div>
@@ -163,12 +163,13 @@
     </div>
 
     <div>
-      <p>
+      <p class="description">
         If your file matches the
         <a href="https://pypi.org/project/concepts/" target="_blank">Concepts Python library format</a>,
         you can convert it to the supported JSON format.
-      </p>
+      
       <button id="convert-download" class="primary-btn">Convert and Download</button>
+      </p>
     </div>
 
   </div>
@@ -227,17 +228,21 @@
       <div class="control-section" id="node-info-panel">
       <span><strong>Selected Node Info</strong></span>
       <div class="panel-content" id="selected-node-info">
+        <p class="description">
         Click a concept in the lattice to view its extent, intent, and other details here.
+        </p>
       </div>
     </div>
 
 </div><!-- end #lattice-area -->
 
 <!-- === Bottom Tabs === -->
+ <!--
   <div id="tabs">
     <div class="tab">Context Editor</div>
     <div class="tab">Implication sets</div>
   </div>
+  -->
 </div> <!-- end #main -->
 
 <!-- === Implication Confirmation Modal ===
