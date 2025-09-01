@@ -24,4 +24,5 @@ For easy testing, this project comes with several compact, teaching-friendly for
   UCI Machine Learning Repository — **Zoo** dataset: <https://archive.ics.uci.edu/dataset/111/zoo>
 
 - **Beverages / Drinks:**  
-  Michael Erdmann (1998). *Formal Concept Analysis to Learn from the Sisyphus-III Material*. In **Proceedings of the 11th Knowledge Acquisition Workshop (KAW’98)**, Knowledge Science Institute, University of Calgary. <https://ksi.cpsc.ucalgary.ca/KAW/KAW98/erdmann/>
+  Michael Erdmann (1998). *Formal Concept Analysis to Learn from the Sisyphus-III Material*. In **Proceedings of the 11th Knowledge Acquisition Workshop (KAW’98)**  <https://ksi.cpsc.ucalgary.ca/KAW/KAW98/erdmann/>
+
