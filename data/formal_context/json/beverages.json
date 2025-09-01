@@ -1,0 +1,77 @@
+{
+  "objects": [
+    "Champagne",
+    "Beer",
+    "Mineral Water",
+    "Cola",
+    "Coffee",
+    "Wine",
+    "Herbal Tea"
+  ],
+  "properties": [
+    "Beverage",
+    "Non-Alcoholic",
+    "Sparkling",
+    "Alcoholic",
+    "Hot",
+    "Caffeinic"
+  ],
+  "context": [
+    [
+      true,
+      false,
+      true,
+      true,
+      false,
+      false
+    ],
+    [
+      true,
+      false,
+      true,
+      true,
+      false,
+      false
+    ],
+    [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      true,
+      true,
+      true,
+      false,
+      false,
+      true
+    ],
+    [
+      true,
+      true,
+      false,
+      false,
+      true,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      true,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
+  ]
+}
