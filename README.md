@@ -15,8 +15,6 @@ A modular JavaScript library and Electron-based desktop application for creating
 
 ## 🚀 Features and Current Status 🚧
 
-The library is **not feature-complete** and may have bugs or missing functionalities.
-
 ### Current Features:
 - **Graph Rendering**: Automatically renders nodes, links, and labels based on input data.
 - **Dynamic Edge Colors**: Highlights edges connected to a selected node.
