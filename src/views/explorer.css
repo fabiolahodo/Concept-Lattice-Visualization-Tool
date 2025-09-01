@@ -1,5 +1,9 @@
 /* explorer.css */
 
+/* =======================
+   Layout
+   ======================= */
+
 body {
   margin: 0;
   font-family: sans-serif;
@@ -33,18 +37,19 @@ body {
   min-height: 320px;
 }
 
+/* =======================
+   Table containers
+   ======================= */
 
 .table-scroll-wrapper {
-  max-height: 400px;
+  max-height: none;
   max-width: 100%;
-  overflow-y: hidden;   
+  overflow-y: visible;   
   overflow-x: auto;
   border: 1px solid #ccc;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: 10px;
   background-color: white;
 }
-
 
 /* Table container should expand horizontally */
 .table-container {
@@ -91,22 +96,22 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
-  text-align: center;
+  text-align: left;
 }
 
 /* Column width safety mins — JS provides actual widths via <th style="width:…"> */
 .gridjs-tr > .gridjs-th:first-child,
 .gridjs-tr > .gridjs-td:first-child {
   min-width: 90px;                   /* row heading compact */
-  text-align: left;
 }
 .gridjs-tr > .gridjs-th:nth-child(n+2),
 .gridjs-tr > .gridjs-td:nth-child(n+2) {
   min-width: 44px;                   /* attributes can be very narrow */
-  text-align: left;
 }
 
-.gridjs-th .gridjs-th-content { 
+/* Let header text expand to the pixel width we set in JS */
+.gridjs-th, 
+.gridjs-th-content { 
   max-width: none !important; 
   width: auto !important;
   white-space: nowrap;
@@ -121,59 +126,43 @@ body {
   display: block;
 }
 
-/* ===== Rename inputs (header / first column) ===== */
-/* Object column wrapper */
-.rename-object-container {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
+/* =======================
+   Rename inputs (headers / first column)
+   ======================= */
 
-/* Attribute header wrapper */
+.rename-object-container,
 .rename-attribute-container {
   display: flex;
   align-items: center;
-  justify-content: center; /* keep centered */
   gap: 6px;
-  width: 100%;
   min-width: 0;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 /* Inputs */
-.rename-object {
-  text-align: left;
-}
-
-.rename-attribute {
-  text-align: center;
-  white-space: nowrap;       /* keep the label on one line */
-  text-overflow: ellipsis;   /* show "…" if it overflows */
-  overflow: hidden;          /* hide overflowed text */
-  max-width: 160px;          /* optional: set a sane max width per column */
-}
-
 .rename-object,
-.rename-attribute {
+.rename-attribute{
   border: none;
   background: transparent;
   font-size: 12px;
   transition: border 0.2s ease-in-out;
-
   padding: 2px;
+
+  /* sizing */
   width: 100%;              /* expand to column width */
   min-width: 8ch;           /* comfy min */
   max-width: none;          /* no artificial cap */
   box-sizing: border-box;   /* padding included */
   flex: 1 1 auto;           /* flex nicely inside cell */
-}
 
-/* Alignment differences */
-.rename-object {
-  text-align: left;         /* easier to scan object names */
-}
-.rename-attribute {
-  text-align: left;       /* keep attributes centered */
+  /* overflow handling */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  /* unified alignment */
+  text-align: left;         
 }
 
 /* Focus state */
@@ -184,7 +173,13 @@ body {
   outline: none;
 }
 
-/* ===== Delete controls (small, only on hover) ===== */
+/* keep header inputs from shrinking too small */
+.gridjs-th input.rename-attribute { min-width: 44px; }
+
+
+/* ===================================
+ Delete controls (small, only on hover) 
+ ==================================== */
 .delete-row,
 .delete-column {
   background: transparent;
@@ -194,13 +189,15 @@ body {
   line-height: 1;
 }
 
-/* keep header inputs from shrinking too small */
+
+/* keep header inputs from shrinking too small 
 .gridjs-th input.rename-attribute { min-width: 44px; }
 .gridjs-thead .gridjs-th, .gridjs-tbody td { white-space: nowrap; }
 
-/* Let header text expand to the pixel width we set in JS */
+/* Let header text expand to the pixel width we set in JS 
 .gridjs-th-content { max-width: none !important; }
 .gridjs-thead .gridjs-th, .gridjs-tbody td { white-space: nowrap; } /* optional, avoids wrapping */
+*/
 /* Row delete (object column) — compact */
 .gridjs-td .delete-row {
   font-size: 12px;
@@ -218,20 +215,65 @@ body {
   color: #6c757d;
 }
 
-.gridjs-th:hover .delete-column,
-.gridjs-thead .gridjs-th:hover .delete-column {
+.gridjs-th:hover .delete-column {
   visibility: visible !important;
 }
 .gridjs-th .delete-column:hover { color: #d00; }
 
-/* Responsive tweak */
+/* Responsive tweak 
 @media (max-width: 768px) {
   .table-container { overflow-x: scroll; }
   .gridjs-table th, .gridjs-table td { padding: 5px; }
 }
 
 .hidden { display: none !important; }
+*/
 
+/* =======================
+   Freeze header row + first column (Grid.js)
+   ======================= */
+
+.gridjs-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Freeze header (attributes) */
+.gridjs-thead .gridjs-th {
+  position: sticky;
+  top: 0;
+  background: #f9f9f9;              /* covers content when scrolling */
+  z-index: 3;                        /* above body cells and first column */
+  box-shadow: 0 2px 2px rgba(0,0,0,0.05); /* subtle divider */
+  overflow: visible;
+}
+
+/* Freeze first column (objects) in both header and body */
+.gridjs-tr > .gridjs-th:first-child,
+.gridjs-tr > .gridjs-td:first-child {
+  position: sticky;
+  left: 0;
+  background: #f9f9f9;
+  z-index: 2;                        /* under sticky header but above normal cells */
+  box-shadow: 2px 0 2px rgba(0,0,0,0.05); /* subtle divider */
+  text-align: left;
+}
+
+/* Top-left corner (intersection) should sit above everything */
+.gridjs-thead .gridjs-th:first-child {
+  z-index: 4;
+}
+
+/* Optional: avoid border bleed on overlap */
+.gridjs-tr > .gridjs-th:first-child,
+.gridjs-tr > .gridjs-td:first-child,
+.gridjs-thead .gridjs-th {
+  background-clip: padding-box;
+}
+
+/* =======================
+   Panels / cards / headers
+   ======================= */
 .panel-area {
   padding: 15px;
   margin: 20px;
@@ -273,38 +315,53 @@ body {
   margin-bottom: 6px;
 }
 
-#legend {
-  margin-top: 8px;
-  line-height: 1.6;
-  padding-left: 20px;
-  list-style-type: none;
+/* Sidebar styled like panel-area */
+.sidebar-section {
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
 }
-
-#legend li span {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  vertical-align: middle;
-  border-radius: 3px;
+.sidebar-section h4 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+  color: #333;
+}
+.sidebar-section ul {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+}
+.sidebar-section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.sidebar-section td {
+  padding: 4px 6px;
   border: 1px solid #ccc;
 }
 
+/* =======================
+   Top panel / buttons / upload
+   ======================= */
 
-/* Ensure inner sections behave properly */
 #top-panel {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-button {
-  cursor: pointer;
-}
+button { cursor: pointer; }
 
 button#load-json-file {
   background-color: #007bff;
-  color: white;
+  color: #fff;
   padding: 6px 12px;
   border: none;
   border-radius: 4px;
@@ -314,29 +371,27 @@ button#load-json-file {
   padding: 15px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   margin-bottom: 20px;
 }
 
 #json-upload-flex {
   display: flex;
-  /*justify-content: space-between;*/
   align-items: center;
   flex-wrap: wrap;
   gap: 15px;
 }
 
-select, input[type="file"] {
-  margin-top: 8px;
-}
+select,
+input[type="file"] { margin-top: 8px; }
 
 #file-input-wrapper {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   display: inline-block;
 }
 
@@ -368,41 +423,26 @@ select, input[type="file"] {
   flex-direction: column;
   gap: 10px;
 }
-/*
-.fullscreen-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: 0;
-  padding: 20px;
-  background: white;
-  z-index: 1000;
-  overflow: auto;
-  border: none;
-  box-shadow: inset 0 0 0 1px #ccc;
-}
-*/
+
+/* =======================
+   Fullscreen panel
+   ======================= */
 
 .fullscreen-panel {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   margin: 0;
   padding: 20px;
-  background: white;
+  background: #fff;
   z-index: 1000;
   overflow: auto;
   border: none;
   box-shadow: inset 0 0 0 1px #ccc;
 }
 
-#labeling-save-container {
-  margin-top: 20px;
-}
+/* =======================
+   Tabs
+   ======================= */
 
 #tabs {
   height: 40px;
@@ -412,7 +452,6 @@ select, input[type="file"] {
   padding-left: 10px;
   border-top: 1px solid #ccc;
 }
-
 .tab {
   margin-right: 20px;
   cursor: pointer;
@@ -420,186 +459,141 @@ select, input[type="file"] {
   color: #333;
 }
 
-#modal {
-  position: fixed;
-  top: 30%;
-  left: 30%;
-  width: 40%;
-  background: #fff;
-  border: 1px solid #666;
-  box-shadow: 0 0 10px #000;
-  padding: 20px;
-  display: none;
-  z-index: 10;
+/* =======================
+   Legend
+   ======================= */
+
+#legend {
+  margin-top: 8px;
+  line-height: 1.6;
+  padding-left: 20px;
+  list-style-type: none;
 }
 
-/* Sidebar styled like panel-area */
-.sidebar-section {
-  background-color: #fff;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 15px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-}
-
-.sidebar-section h4 {
-  margin-top: 0;
-  font-size: 15px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 4px;
-  color: #333;
-}
-
-.sidebar-section ul {
-  padding-left: 18px;
-  margin: 0;
-  font-size: 14px;
-  color: #444;
-}
-
-.sidebar-section table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.sidebar-section td {
-  padding: 4px 6px;
+#legend li span {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 3px;
   border: 1px solid #ccc;
 }
 
-#filters, #metrics-container, #legend-container, #shortest-path-info {
-      margin-bottom: 20px;
-    }
+/* =======================
+   Labels / save bar
+   ======================= */
 
-#graph-container {
-    width: 100%;
-    height: 600px;
-    border: 1px solid #ddd;
-    background-color: #ffffff;
-    overflow: hidden;     /* ✅ Prevent zoom overflow */
-  position: relative;   /* ✅ Needed for overflow to work properly */
-  }
 
-  #tooltip {
-      position: absolute;
-      display: none;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 5px;
-      border-radius: 3px;
-      font-size: 0.8rem;
-      pointer-events: none;
-      z-index: 10;
-    }
+#labeling-save-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;                /* space between dropdowns */
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  width: fit-content;
+}
 
-    #filter-legend-container {
-      display: flex;
-      justify-content: space-between; /* Distribute space evenly */
-      gap: 20px; /* Add space between filters and legend */
-      align-items: flex-start; /* Align content at the top */
-      margin-bottom: 20px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      background-color: white;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
 
-    #labeling-save-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px; /* Space between the two dropdowns */
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      background-color: white;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      width: fit-content;
-    }
+/* =======================
+   Filters / metrics / legend / shortest path
+   ======================= */
 
-    #node-info-panel {
+#filters,
+#metrics-container,
+#legend-container,
+#shortest-path-info {
+  margin-bottom: 20px;
+}
+
+/* =======================
+   Graph area
+   ======================= */
+
+   #graph-container {
+  width: 100%;
+  height: 600px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  overflow: hidden;    /* prevent zoom overflow */
+  position: relative;  /* needed for overflow to work properly */
+}
+#tooltip {
+  position: absolute;
+  display: none;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 5px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Filters + Legend container */
+#filter-legend-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Node info panel */
+#node-info-panel {
   margin-top: 20px;
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
+/* =======================
+   Create-context modal
+   ======================= */
 
 #create-context-modal.hidden { display: none !important; }
 #create-context-modal {
-  position: fixed; inset: 0; background: rgba(0,0,0,.25);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 2000;
 }
 #create-context-modal .ccm-card {
-  background: #fff; border: 1px solid #ddd; border-radius: 8px;
-  padding: 16px; width: 320px; box-shadow: 0 6px 20px rgba(0,0,0,.15);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  width: 320px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15);
 }
-#create-context-modal input[type="number"] { width: 100%; box-sizing: border-box; }
-
+#create-context-modal input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+}
 
 /* =======================
-   Freeze header row + first column (Grid.js)
+   Breadcrumbs
    ======================= */
-
-/* Ensure separate borders so sticky cells don't glitch at seams */
-.gridjs-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-/* Freeze header (attributes) */
-.gridjs-thead .gridjs-th {
-  position: sticky;
-  top: 0;
-  background: #f9f9f9;     /* covers content when scrolling */
-  z-index: 3;              /* above body cells and first column */
-  box-shadow: 0 2px 2px rgba(0,0,0,0.05); /* subtle divider */
-  overflow: visible;
-
-}
-
-/* Freeze first column (objects) in both header and body */
-.gridjs-tr > .gridjs-th:first-child,
-.gridjs-tr > .gridjs-td:first-child {
-  position: sticky;
-  left: 0;
-  background: #f9f9f9;
-  z-index: 2;              /* sits under sticky header but above normal cells */
-  box-shadow: 2px 0 2px rgba(0,0,0,0.05); /* subtle divider */
-  text-align: left;        /* keep object names left-aligned */
-}
-
-/* Top-left corner (intersection) should sit above everything */
-.gridjs-thead .gridjs-th:first-child {
-  z-index: 4;              /* higher than header row + first column */
-}
-
-/* Keep rename inputs usable in sticky cells */
-.gridjs-th input.rename-attribute,
-.gridjs-td:first-child .rename-object {
-  background: transparent;
-}
-
-/* Optional: make sticky backgrounds match your table body if it's white */
-.gridjs-tr > .gridjs-th:first-child,
-.gridjs-tr > .gridjs-td:first-child,
-.gridjs-thead .gridjs-th {
-  background-clip: padding-box; /* avoids border bleed on overlap */
-}
-
 
 #document-path .muted {
   font-size: 0.9em;
   color: #666;
   margin-bottom: 4px;
 }
-
 #document-path .crumb {
   display: flex;
   align-items: center;
@@ -607,18 +601,27 @@ select, input[type="file"] {
   padding: 2px 4px;
   border-radius: 4px;
   line-height: 1.2;
-  font-size: 0.85em;   /* 🔹 makes Context/Lattice text smaller */
+  font-size: 0.85em; /* makes Context/Lattice text smaller */
 }
-
 #document-path .crumb .icon {
-  font-size: 1em;      /* keep icons same size as text */
+  font-size: 1em;
   width: 1.2em;
   text-align: center;
 }
-
 #document-path .crumb.is-active {
   font-weight: 600;
   background: #fff;
   outline: 1px solid #ddd;
 }
 
+/* =======================
+   Utilities / responsive
+   ======================= */
+
+.hidden { display: none !important; }
+
+@media (max-width: 768px) {
+  .table-container { overflow-x: scroll; }
+  .gridjs-table th,
+  .gridjs-table td { padding: 5px; }
+}
