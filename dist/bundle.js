@@ -6713,7 +6713,8 @@ function initTable({ tableSelector, getState, setState }) {
       data: generateGridData(data),
       search: { enabled: true, placeholder: "Type a keyword..." },
       sort: false,
-      pagination: { limit: 14 }, // paged rows so headers have room
+      //pagination: { limit: 14 }, // paged rows so headers have room
+      pagination: false,
       fixedHeader: true,
       height: "70vh"
     });
