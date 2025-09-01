@@ -2,6 +2,11 @@
 
 A modular JavaScript library and Electron-based desktop application for creating and visualizing concept lattices, powered by D3.js. Designed for academic and research purposes, this tool enables users to generate, render, and interact with concept lattices in an intuitive 2D interface.
 
+> [!TIP]
+> Built on **`lattice.js`** — a modular JavaScript renderer. See the repo: <https://github.com/fabiolahodo/lattice>
+
+
+
 ## 🎥 Demo Preview
 
 ![Lattice.js Interactive Demo](./images/latticejsAnimation.gif)
@@ -9,8 +14,6 @@ A modular JavaScript library and Electron-based desktop application for creating
 ---
 
 ## 🚀 Features and Current Status 🚧
-
-The library is **not feature-complete** and may have bugs or missing functionalities.
 
 ### Current Features:
 - **Graph Rendering**: Automatically renders nodes, links, and labels based on input data.
