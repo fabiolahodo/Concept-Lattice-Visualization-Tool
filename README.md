@@ -175,7 +175,7 @@ The tool accepts **JSON files** that describe either:
 json
 {
   "objects": ["adult", "female", "juvenile", "male"],
-  "attributes": ["boy", "girl", "man", "woman"],
+  "properties": ["boy", "girl", "man", "woman"],
   "context": [
     [false, false, true, true],
     [false, true, true, false],
