@@ -3809,12 +3809,12 @@ function addNodeInteractivity(nodeGroup, linkGroup, graphData) {
     // **Highlight Links connected to the Selected Node**
     if (!linkGroup || linkGroup.size() === 0) {
       console.error("❌ linkGroup is not initialized properly. Cannot update link styles.");
-      return;
+      //return;
   }
 
   // Update selectedNodes
   selectedNodes.push(clickedNode.id);
-  if (selectedNodes.length > 2) selectedNodes = [clickedNode.id]; // reset if over 2
+  if (selectedNodes.length > 1) selectedNodes = [clickedNode.id]; // reset if over 2
 
     // Reset links before any state change
     graphData.links.forEach(link => {
@@ -5941,7 +5941,7 @@ adjustNodePositions(layers, width, GRAPH_CONFIG.dimensions.padding);
   addInteractivity(svg, graphData);
 
   // Add node-specific interactivity (hover, click, shortest path, etc.)
-  //addNodeInteractivity(nodeGroup, linkGroup, graphData, updateLinks);
+  addNodeInteractivity(nodeGroup, linkGroup, graphData);
 
  // Dynamically center the graph
  setTimeout(() => {

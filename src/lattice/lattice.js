@@ -303,7 +303,7 @@ adjustNodePositions(layers, width, GRAPH_CONFIG.dimensions.padding);
   addInteractivity(svg, graphData);
 
   // Add node-specific interactivity (hover, click, shortest path, etc.)
-  //addNodeInteractivity(nodeGroup, linkGroup, graphData, updateLinks);
+  addNodeInteractivity(nodeGroup, linkGroup, graphData);
 
  // Dynamically center the graph
  setTimeout(() => {
