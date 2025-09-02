@@ -4,7 +4,9 @@
   "description": "Interactive concept lattice visualization tool (Electron + D3).",
   "type": "module",
   "main": "main.js",
-  "author": "Fabiola Hodo, Baris Sertkaya",
+  "author": { 
+    "name": "Fabiola Hodo, Baris Sertkaya", 
+    "email": "fabiolahodo@gmail.com" },
   "license": "ISC",
   "repository": {
     "type": "git",
@@ -77,7 +79,8 @@
         "deb"
       ],
       "icon": "assets/icons",
-      "category": "Development"
+      "category": "Development",
+      "maintainer": "Fabiola Hodo <fabiolahodo@gmail.com>"
     }
   }
 }
