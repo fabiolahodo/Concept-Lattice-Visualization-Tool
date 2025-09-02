@@ -1,0 +1,127 @@
+name: Build & Publish Release
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "v*.*"
+      - "v*.*.*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  linux:
+    name: Linux (AppImage + deb)
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      ELECTRON_CACHE: ~/.cache/electron
+      ELECTRON_BUILDER_CACHE: ~/.cache/electron-builder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Cache node modules & builder caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/electron
+            ~/.cache/electron-builder
+          key: ${{ runner.os }}-node20-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node20-
+      - name: Install deps
+        run: npm ci
+      # If you bundle with rollup, keep this:
+      # - run: npm run build
+      - name: Build & publish Linux artifacts (Releases)
+        run: npx electron-builder --linux AppImage deb --publish always
+      - name: Upload Linux artifacts to Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts-${{ github.ref_name }}
+          path: release/**
+          if-no-files-found: warn
+          retention-days: 14
+
+  windows:
+    name: Windows (NSIS)
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      ELECTRON_CACHE: ~\AppData\Local\electron\Cache
+      ELECTRON_BUILDER_CACHE: ~\AppData\Local\electron-builder\Cache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Cache node modules & builder caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~\AppData\Local\electron\Cache
+            ~\AppData\Local\electron-builder\Cache
+          key: ${{ runner.os }}-node20-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node20-
+      - name: Install deps
+        run: npm ci
+      # - run: npm run build
+      - name: Build & publish Windows installer (Releases)
+        run: npx electron-builder --win nsis --publish always
+      - name: Upload Windows artifacts to Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts-${{ github.ref_name }}
+          path: release/**
+          if-no-files-found: warn
+          retention-days: 14
+
+  macos:
+    name: macOS (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          # Apple Silicon
+          - runner: macos-14
+            arch: arm64
+            buildArgs: "--mac dmg zip --arm64"
+          # Intel
+          - runner: macos-13
+            arch: x64
+            buildArgs: "--mac dmg zip --x64"
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      ELECTRON_CACHE: ~/Library/Caches/electron
+      ELECTRON_BUILDER_CACHE: ~/Library/Caches/electron-builder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Cache node modules & builder caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/Library/Caches/electron
+            ~/Library/Caches/electron-builder
+          key: ${{ runner.os }}-node20-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node20-
+      - name: Install deps
+        run: npm ci
+      # - run: npm run build
+      - name: Build & publish macOS (${{ matrix.arch }}) (Releases)
+        run: npx electron-builder ${{ matrix.buildArgs }} --publish always
+      - name: Upload macOS (${{ matrix.arch }}) artifacts to Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.arch }}-artifacts-${{ github.ref_name }}
+          path: release/**
+          if-no-files-found: warn
+          retention-days: 14

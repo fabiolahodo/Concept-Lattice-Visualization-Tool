@@ -4,7 +4,7 @@
   "description": "Interactive concept lattice visualization tool (Electron + D3).",
   "type": "module",
   "main": "main.js",
-  "author": "",
+  "author": "Fabiola Hodo, Baris Sertkaya",
   "license": "ISC",
   "repository": {
     "type": "git",
@@ -12,18 +12,26 @@
   },
   "homepage": "https://github.com/fabiolahodo/Concept-Lattice-Visualization-Tool#readme",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && electron .",
     "build": "rollup -c",
-    "dist:win": "npm run build && electron-builder --win nsis",
-    "dist:linux": "npm run build && electron-builder --linux AppImage deb",
-    "dist:mac": "npm run build && electron-builder --mac dmg zip",
-    "dist": "npm run dist:win"
+    
+    "dist:win": "npm run build && electron-builder --win nsis --publish never",
+    "dist:linux": "npm run build && electron-builder --linux AppImage deb --publish never",
+    "dist:mac": "npm run build && electron-builder --mac dmg zip --publish never",
+    "dist": "npm run dist:win",
+
+    "dist:win:ci": "npm run build && electron-builder --win nsis",
+    "dist:linux:ci": "npm run build && electron-builder --linux AppImage deb",
+    "dist:mac:ci": "npm run build && electron-builder --mac dmg zip",
+
+    "dist:local": "npm-run-all -s dist:win:local dist:linux:local"
+
   },
-  "keywords": [],
+  "keywords": [ ],
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
@@ -54,6 +62,7 @@
     { "from": "node_modules/express", "to": "node_modules/express" }
     ],
     "artifactName": "Lattice-${version}-${os}-${arch}.${ext}",
+    "publish": ["github"],
     "win": {
       "target": "nsis",
       "icon": "assets/icons/icon.ico"
