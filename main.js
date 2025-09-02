@@ -10,11 +10,29 @@ import { spawn } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Start backend as child process
-const backendProcess = spawn('node', [path.join(__dirname, 'server.cjs')], {
-  stdio: 'inherit', // (optional) see backend output in Electron console
-  shell: process.platform === "win32" // fix for Windows paths
-});
+// single-instance guard
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) { app.quit(); process.exit(0); }
+
+// Globals
+let win = null;
+let backendProcess = null;
+
+// Base where your packaged app's JS/HTML lives (inside app.asar)
+const appBase = app.isPackaged ? app.getAppPath() : __dirname;
+// Base where extra resources live (outside asar)
+const resourcesBase = app.isPackaged ? process.resourcesPath : __dirname;
+
+// ---- Start backend (must be OUTSIDE asar) ----
+function startBackend() {
+  if (backendProcess) return;
+  const serverPath = path.join(resourcesBase, 'server.cjs');
+  backendProcess = spawn(process.execPath, [serverPath], {
+    stdio: 'ignore',
+    shell: process.platform === 'win32',
+    windowsHide: true
+  });
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -27,14 +45,34 @@ function createWindow() {
     }
   });
 
-  win.loadFile(path.join(__dirname, 'src/views/explorer.html'));
+  // UI is inside app.asar → load from appBase
+  const indexHtml = path.join(appBase, 'dist/renderer', 'index.html');
+  win.loadFile(indexHtml);
+
+  if (!app.isPackaged) {
+    win.webContents.openDevTools({ mode: 'detach' });
+  }
 }
 
-app.whenReady().then(createWindow);
+// ---- App lifecycle ----
+app.on('second-instance', () => {
+  if (win) { 
+    if (win.isMinimized()) win.restore(); 
+    win.focus(); }
+});
+
+
+app.whenReady().then(() => {
+  startBackend();
+  createWindow();
+});
 
 //Shut down backend on Electron exit
 app.on('before-quit', () => {
-  if (backendProcess) {
+  try{
     backendProcess.kill();
   }
+
+  catch {} 
+
 });
