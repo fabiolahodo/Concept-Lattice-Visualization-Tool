@@ -1,0 +1,8 @@
+version: 1.0.0
+files:
+  - url: Lattice-1.0.0-win-x64.exe
+    sha512: sJgmEuwkdh+WcDh7B7+d2Inlyb9uB46I+vlKqBt1EldK1UtTet1N27Bb6h3yTjbCJMmmYp6VPUQLOuaRSSuvJw==
+    size: 89681212
+path: Lattice-1.0.0-win-x64.exe
+sha512: sJgmEuwkdh+WcDh7B7+d2Inlyb9uB46I+vlKqBt1EldK1UtTet1N27Bb6h3yTjbCJMmmYp6VPUQLOuaRSSuvJw==
+releaseDate: '2025-09-02T08:35:44.178Z'
