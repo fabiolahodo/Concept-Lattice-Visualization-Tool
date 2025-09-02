@@ -1,12 +1,13 @@
 {
   "name": "concept-lattice-visualization_framework",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Interactive concept lattice visualization tool (Electron + D3).",
   "type": "module",
   "main": "main.js",
-  "author": { 
-    "name": "Fabiola Hodo, Baris Sertkaya", 
-    "email": "fabiolahodo@gmail.com" },
+  "author": {
+    "name": "Fabiola Hodo, Baris Sertkaya",
+    "email": "fabiolahodo@gmail.com"
+  },
   "license": "ISC",
   "repository": {
     "type": "git",
@@ -20,20 +21,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && electron .",
     "build": "rollup -c",
-    
     "dist:win": "npm run build && electron-builder --win nsis --publish never",
     "dist:linux": "npm run build && electron-builder --linux AppImage deb --publish never",
     "dist:mac": "npm run build && electron-builder --mac dmg zip --publish never",
     "dist": "npm run dist:win",
-
     "dist:win:ci": "npm run build && electron-builder --win nsis",
     "dist:linux:ci": "npm run build && electron-builder --linux AppImage deb",
     "dist:mac:ci": "npm run build && electron-builder --mac dmg zip",
-
     "dist:local": "npm-run-all -s dist:win:local dist:linux:local"
-
   },
-  "keywords": [ ],
+  "keywords": [],
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
@@ -51,7 +48,9 @@
   "build": {
     "appId": "com.lattice.app",
     "productName": "Lattice",
-    "directories": { "output": "release" },
+    "directories": {
+      "output": "release"
+    },
     "asar": true,
     "files": [
       "main.js",
@@ -60,17 +59,25 @@
       "assets/**"
     ],
     "extraResources": [
-    "server.cjs",
-    { "from": "node_modules/express", "to": "node_modules/express" }
+      "server.cjs",
+      {
+        "from": "node_modules/express",
+        "to": "node_modules/express"
+      }
     ],
     "artifactName": "Lattice-${version}-${os}-${arch}.${ext}",
-    "publish": ["github"],
+    "publish": [
+      "github"
+    ],
     "win": {
       "target": "nsis",
       "icon": "assets/icons/icon.ico"
     },
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "icon": "assets/icons/icon.icns"
     },
     "linux": {
