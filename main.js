@@ -1,98 +1,76 @@
-// main.js — Electron (ESM) cross-platform entry
-// Works on Linux, Windows, macOS; starts a CJS backend via fork().
-
-import { app, BrowserWindow } from "electron";
-import { fork } from "child_process";
+// main.js
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 let win = null;
-let backendProcess = null;
 
-/* ------------------------- Paths & helpers ------------------------- */
+/* ---------- Helpers ---------- */
 
-// Adjust if your packaged HTML lives elsewhere:
-function resolveRendererIndex() {
-  // In dev you might serve from a dev server; here we default to local file.
-  // Rollup typically outputs "dist/renderer/index.html"
-  return path.resolve(__dirname, "dist", "renderer", "index.html");
+/** Resolve cross-platform Python executable */
+function guessPythonCmd() {
+  if (process.platform === "win32") {
+    return "py";            // most Windows systems
+  }
+  return "python3";         // Linux & macOS
 }
 
-// server.cjs is listed in "extraResources" so it ends up under process.resourcesPath when packaged.
-function resolveServerPath() {
-  if (app.isPackaged) {
-    return path.join(process.resourcesPath, "server.cjs");
-  }
-  // In development, keep server.cjs next to main.js (adjust if you store it elsewhere)
-  return path.resolve(__dirname, "server.cjs");
+/** Resolve path to Python script (dev vs packaged) */
+function scriptPath() {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, "for_concepts.py")
+    : path.resolve(__dirname, "for_concepts.py");
 }
 
-/* ----------------------- Backend (Express) ------------------------ */
+/** Run Python and return JSON result */
+function runPythonCompute(payload) {
+  return new Promise((resolve, reject) => {
+    const py = guessPythonCmd();
+    const script = scriptPath();
 
-function startBackend() {
-  if (backendProcess) return; // already running
+    const child = spawn(py, [script], { stdio: ["pipe", "pipe", "pipe"] });
 
-  const serverPath = resolveServerPath();
-  if (!fs.existsSync(serverPath)) {
-    console.error(`[backend] server.cjs not found at: ${serverPath}`);
-    return;
-  }
+    let out = "";
+    let err = "";
 
-  try {
-    backendProcess = fork(serverPath, [], {
-      stdio: "ignore",
-      // Use Electron’s embedded Node runtime; important for Linux/macOS packages
-      execPath: process.execPath
-      // NOTE: no 'shell' or 'windowsHide' here; those are spawn() options only.
+    child.stdout.on("data", (d) => (out += d.toString()));
+    child.stderr.on("data", (d) => (err += d.toString()));
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        try {
+          resolve(JSON.parse(out));
+        } catch (e) {
+          reject(
+            new Error(
+              "Failed to parse Python output: " +
+                e.message +
+                "\nRaw output: " +
+                out
+            )
+          );
+        }
+      } else {
+        reject(new Error("Python exited with code " + code + (err ? "\n" + err : "")));
+      }
     });
-    backendProcess.unref();
 
-    backendProcess.on("error", (err) => {
-      console.error("[backend] error:", err);
-    });
-    backendProcess.on("exit", (code, signal) => {
-      console.log(`[backend] exited code=${code} signal=${signal}`);
-      backendProcess = null;
-    });
-
-    console.log("[backend] started:", serverPath);
-  } catch (err) {
-    console.error("[backend] failed to start:", err);
-  }
+    // Send payload into Python stdin
+    child.stdin.write(JSON.stringify(payload));
+    child.stdin.end();
+  });
 }
 
-function stopBackend() {
-  if (backendProcess && !backendProcess.killed) {
-    try { backendProcess.kill("SIGTERM"); } catch {}
-  }
-  backendProcess = null;
-}
-
-/* ------------------------ Single-instance ------------------------ */
-
-const gotLock = app.requestSingleInstanceLock();
-if (!gotLock) {
-  app.quit();
-  process.exit(0);
-}
-
-app.on("second-instance", () => {
-  if (win) {
-    if (win.isMinimized()) win.restore();
-    win.focus();
-  }
-});
-
-/* ------------------------- Create window ------------------------- */
+/* ---------- Electron App ---------- */
 
 function createWindow() {
-  // Nice-to-have on Windows for notifications/updater
   if (process.platform === "win32") {
-    app.setAppUserModelId("com.example.lattice"); // set to your appId
+    app.setAppUserModelId("com.example.lattice");
   }
 
   win = new BrowserWindow({
@@ -100,29 +78,21 @@ function createWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    show: false, // show after ready-to-show for smoother UX
-    // Note: 'icon' is ignored on macOS (use app bundle icon). Works on Win/Linux.
+    show: false,
     icon: path.resolve(__dirname, "assets", "icons", "icon.png"),
     webPreferences: {
-      // Security best practices:
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      // If you have a preload script, point to it here:
-      // preload: path.resolve(__dirname, "dist", "preload.js"),
-      // Restrict navigation (tighten as needed in production):
-      webSecurity: true
-    }
+      preload: path.resolve(__dirname, "preload.js"),
+      webSecurity: true,
+    },
   });
 
-  // macOS: optional dock icon at runtime (uses PNG)
-  if (process.platform === "darwin" && app.dock && fs.existsSync(path.resolve(__dirname, "assets", "icons", "icon.png"))) {
-    try { app.dock.setIcon(path.resolve(__dirname, "assets", "icons", "icon.png")); } catch {}
-  }
-
-  // Load packaged HTML
-  const indexPath = resolveRendererIndex();
-  win.loadFile(indexPath).catch(err => console.error("Failed to load index:", err));
+  const indexPath = path.resolve(__dirname, "dist", "renderer", "index.html");
+  win
+    .loadFile(indexPath)
+    .catch((err) => console.error("Failed to load index:", err));
 
   win.once("ready-to-show", () => {
     win?.show();
@@ -133,13 +103,18 @@ function createWindow() {
   });
 }
 
-/* --------------------------- Lifecycle --------------------------- */
+/* ---------- IPC Handlers ---------- */
+
+// Called from renderer via window.py.computeLattice()
+ipcMain.handle("compute-lattice", async (_evt, payload) => {
+  return await runPythonCompute(payload);
+});
+
+/* ---------- App lifecycle ---------- */
 
 app.on("ready", () => {
-  startBackend();
   createWindow();
 
-  // macOS: set About panel (optional)
   if (process.platform === "darwin") {
     app.setAboutPanelOptions?.({
       applicationName: "Lattice",
@@ -149,22 +124,10 @@ app.on("ready", () => {
   }
 });
 
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+});
+
 app.on("activate", () => {
-  // macOS: recreate window when clicking dock icon and no windows are open
-  if (win === null) {
-    createWindow();
-  }
-});
-
-// Clean shutdown on all platforms
-app.on("before-quit", () => {
-  stopBackend();
-});
-
-// Extra safety for some Linux environments
-process.on("SIGTERM", () => {
-  app.quit();
-});
-process.on("SIGINT", () => {
-  app.quit();
+  if (win === null) createWindow();
 });
