@@ -5,6 +5,15 @@ import { watchPagination, watchResize } from "./table/observe.js";
 import { applyInitialColumnWidths, desiredObjectColPx, scheduleColumnWidthPx } from "./table/widths.js";
 import { parseCSVFile, parseXLSXFile, parseCXTFile, normalizeCell } from "./io/parsers.js";
 
+
+// ---- Python bridge helper (no HTTP) ----
+async function computeLatticeViaPython(payload) {
+  if (!window.py?.computeLattice) {
+    throw new Error("Python bridge unavailable. Did preload.js load with contextIsolation=true?");
+  }
+  return await window.py.computeLattice(payload);
+}
+
 /**
  * Initialize the Formal Context editor and wire the surrounding UI.
  *
@@ -304,7 +313,7 @@ export function initContextEditor(opts = {}) {
       }
     }
   }
-
+/*
   document.querySelector(visualizeBtn)?.addEventListener("click", async () => {
     try {
       if (uploadedGraph) { onGraphReady(uploadedGraph); return; }
@@ -330,6 +339,30 @@ export function initContextEditor(opts = {}) {
       console.error(err);
     }
   });
+*/
+
+document.querySelector(visualizeBtn)?.addEventListener("click", async () => {
+  try {
+    if (uploadedGraph) { onGraphReady(uploadedGraph); return; }
+
+    const ctx = resolveContextForVisualization();
+    validateContext(ctx);
+
+    // NEW: call Python via IPC (stdin/stdout), no HTTP/ports
+    const backendResult = await computeLatticeViaPython({
+      objects: ctx.objects,
+      properties: ctx.properties,
+      context: ctx.context
+    });
+
+    // keep your existing transformer
+    const graphData = parseSerializedData(backendResult);
+    onGraphReady(graphData);
+  } catch (err) {
+    alert("Lattice computation failed: " + err.message);
+    console.error(err);
+  }
+});
 
   /* ---------- Small helpers ---------- */
   function downloadBlob(content, filename, type) {
