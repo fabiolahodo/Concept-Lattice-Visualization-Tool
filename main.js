@@ -83,8 +83,10 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
-      preload: path.resolve(__dirname, "preload.js"),
+      sandbox: false,
+      preload: app.isPackaged
+        ?path.join(process.resourcesPath, "preload.js")
+        :path.resolve(__dirname, "preload.js"),
       webSecurity: true,
     },
   });
