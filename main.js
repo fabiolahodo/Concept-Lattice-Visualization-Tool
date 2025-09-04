@@ -12,63 +12,56 @@ let win = null;
 
 /* ---------- Helpers ---------- */
 
-/** Resolve cross-platform Python executable */
-function guessPythonCmd() {
+/** Resolve cross-platform Python executable + args */
+function pythonCmd() {
   if (process.platform === "win32") {
-    return "py";            // most Windows systems
+    return { cmd: "py", args: ["-3"] };   // Windows: force Python 3
   }
-  return "python3";         // Linux & macOS
+  return { cmd: "python3", args: [] };    // Linux/macOS
 }
 
 /** Resolve path to Python script (dev vs packaged) */
 function scriptPath() {
   return app.isPackaged
-    ? path.join(process.resourcesPath, "for_concepts.py")
-    : path.resolve(__dirname, "for_concepts.py");
+    ? path.join(process.resourcesPath, "python", "for_concepts.py") // or just "for_concepts.py" if you kept it at root via extraResources
+    : path.join(__dirname, "python", "for_concepts.py");
 }
 
-/** Run Python and return JSON result */
+/** Spawn Python and exchange JSON via stdin/stdout */
 function runPythonCompute(payload) {
   return new Promise((resolve, reject) => {
-    const py = guessPythonCmd();
+    const { cmd, args } = pythonCmd();
     const script = scriptPath();
 
-    const child = spawn(py, [script], { stdio: ["pipe", "pipe", "pipe"] });
+    console.log("[main] Using Python:", cmd, args.join(" "), "script:", script);
 
-    let out = "";
-    let err = "";
+    const child = spawn(cmd, [...args, script], { stdio: ["pipe", "pipe", "pipe"] });
 
-    child.stdout.on("data", (d) => (out += d.toString()));
-    child.stderr.on("data", (d) => (err += d.toString()));
-
-    child.on("close", (code) => {
+    let out = "", err = "";
+    child.stdout.on("data", d => (out += d.toString()));
+    child.stderr.on("data", d => (err += d.toString()));
+    child.on("close", code => {
       if (code === 0) {
-        try {
-          resolve(JSON.parse(out));
-        } catch (e) {
-          reject(
-            new Error(
-              "Failed to parse Python output: " +
-                e.message +
-                "\nRaw output: " +
-                out
-            )
-          );
-        }
+        try { resolve(JSON.parse(out)); }
+        catch (e) { reject(new Error("Failed to parse Python output: " + e.message + "\nRaw: " + out)); }
       } else {
         reject(new Error("Python exited with code " + code + (err ? "\n" + err : "")));
       }
     });
 
-    // Send payload into Python stdin
     child.stdin.write(JSON.stringify(payload));
     child.stdin.end();
   });
 }
 
+
 /* ---------- Electron App ---------- */
 
 function createWindow() {
+
+const preloadPath = path.join(__dirname, 'preload.cjs');
+  console.log('[main] preload path:', preloadPath, 'exists?', fs.existsSync(preloadPath));
+
   if (process.platform === "win32") {
     app.setAppUserModelId("com.example.lattice");
   }
@@ -83,8 +76,8 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
-      preload: path.join(__dirname, "preload.cjs"),
+      sandbox: false,
+      preload: preloadPath,
       webSecurity: true,
     },
   });

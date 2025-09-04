@@ -52,23 +52,20 @@
       "output": "release"
     },
     "asar": true,
+
     "files": [
       "main.js",
+      "preload.cjs",
       "dist/**",
       "package.json",
       "assets/**"
     ],
     "extraResources": [
-      "server.cjs",
       {
-        "from": "node_modules/express",
-        "to": "node_modules/express"
+ 	"from": "python", "to": "python"
       }
     ],
-    "artifactName": "Lattice-${version}-${os}-${arch}.${ext}",
-    "publish": [
-      "github"
-    ],
+    
     "win": {
       "target": "nsis",
       "icon": "assets/icons/icon.ico"
