@@ -1,0 +1,62 @@
+name: Release (Windows)
+
+on:
+  push:
+    tags: ["v*-win"]      # e.g. v1.0.4-win
+  workflow_dispatch: {}   # allow manual runs from Actions tab
+
+permissions:
+  contents: write         # needed to create/update releases
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install npm deps
+        run: npm ci
+
+      - name: Build renderer
+        run: npm run build
+
+      # Build a Python venv INSIDE the repo so we can ship it with the app.
+      # This matches the Linux approach and avoids requiring Python on user PCs.
+      - name: Build Python venv (with concepts)
+        shell: powershell
+        run: |
+          py -3 -m venv python-venv
+          python-venv\Scripts\python -m pip install --upgrade pip
+          python-venv\Scripts\pip install concepts
+
+      # Package Windows installer without auto-publishing (we upload in the next step)
+      - name: Package (NSIS) without publish
+        run: npx electron-builder --win nsis --publish=never
+
+      - name: List artifacts
+        shell: powershell
+        run: Get-ChildItem -Recurse -File release | Select-Object FullName, Length
+
+      # Create or update the Release and attach artifacts
+      - name: Create/Update GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}                 # e.g. v1.0.4-win
+          name: "Lattice ${{ github.ref_name }}"
+          allowUpdates: true
+          replacesArtifacts: true
+          draft: false
+          prerelease: false
+          artifacts: |
+            release\*win*.exe
+            release\*win*.exe.blockmap
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
