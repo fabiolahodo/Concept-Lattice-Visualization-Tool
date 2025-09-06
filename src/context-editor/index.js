@@ -188,6 +188,27 @@ export function initContextEditor(opts = {}) {
     gridApi.update();
   });
 
+  document.getElementById("delete-row")?.addEventListener("click", () => {
+  ensureTableMounted();
+  const sel = gridApi.getSelection();
+  if (sel.row < 0) { alert("Select a row first."); return; }
+  const { data } = store.get();
+  const name = data[sel.row]?.[0] ?? `row ${sel.row + 1}`;
+  if (!confirm(`Delete row "${name}"?`)) return;
+  gridApi.deleteSelectedRow();
+});
+
+document.getElementById("delete-column")?.addEventListener("click", () => {
+  ensureTableMounted();
+  const sel = gridApi.getSelection();
+  if (sel.col <= 0) { alert('Select an attribute column (not "Object").'); return; }
+  const { columns } = store.get();
+  const label = columns[sel.col] ?? `column ${sel.col + 1}`;
+  if (!confirm(`Delete column "${label}"?`)) return;
+  gridApi.deleteSelectedColumn();
+});
+
+
   /* ---------- Upload handling (lazy: do NOT mount immediately) ---------- */
   document.querySelector(uploadInput)?.addEventListener("change", async (event) => {
     const file = event.target?.files?.[0];
