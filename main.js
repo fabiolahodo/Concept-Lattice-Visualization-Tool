@@ -13,12 +13,31 @@ let win = null;
 /* ---------- Helpers ---------- */
 
 /** Resolve cross-platform Python executable + args */
+/*
 function pythonCmd() {
   if (process.platform === "win32") {
     return { cmd: "py", args: ["-3"] };   // Windows: force Python 3
   }
   return { cmd: "python3", args: [] };    // Linux/macOS
 }
+*/
+
+function pythonCmd() {
+  // In packaged apps, use bundled venv if present
+  if (app.isPackaged) {
+    const exe = process.platform === "win32"
+      ? path.join(process.resourcesPath, "python-venv", "Scripts", "python.exe")
+      : path.join(process.resourcesPath, "python-venv", "bin", "python");
+    if (fs.existsSync(exe)) return { cmd: exe, args: [] };
+  }
+
+  // Dev / fallback
+  if (process.platform === "win32") {
+    return { cmd: "py", args: ["-3"] }; // Windows Python launcher
+  }
+  return { cmd: "python3", args: [] };
+}
+
 
 /** Resolve path to Python script (dev vs packaged) */
 function scriptPath() {
