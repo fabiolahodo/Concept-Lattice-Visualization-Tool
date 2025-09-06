@@ -1,6 +1,6 @@
 {
   "name": "concept-lattice-visualization_framework",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Interactive concept lattice visualization tool (Electron + D3).",
   "type": "module",
   "main": "main.js",
@@ -21,8 +21,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && electron .",
     "build": "rollup -c",
+    "prepack:python": "python3 -m venv python-venv && ./python-venv/bin/pip install --upgrade pip && ./python-venv/bin/pip install concepts",
     "dist:win": "npm run build && electron-builder --win nsis --publish never",
-    "dist:linux": "npm run build && electron-builder --linux AppImage deb --publish never",
+    "dist:linux": "npm run build && npm run prepack:python && electron-builder --linux AppImage deb --publish never",
     "dist:mac": "npm run build && electron-builder --mac dmg zip --publish never",
     "dist": "npm run dist:win",
     "dist:win:ci": "npm run build && electron-builder --win nsis",
@@ -36,12 +37,11 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "electron": "^37.2.0",
     "electron-builder": "^26.0.12",
-    "rollup": "^4.44.2",
+    "rollup": "^4.50.0",
     "rollup-plugin-copy": "^3.5.0"
   },
   "dependencies": {
     "d3": "^7.9.0",
-    "express": "^5.1.0",
     "grid": "^4.10.8",
     "gridjs": "^6.2.0"
   },
@@ -52,7 +52,6 @@
       "output": "release"
     },
     "asar": true,
-
     "files": [
       "main.js",
       "preload.cjs",
@@ -61,11 +60,9 @@
       "assets/**"
     ],
     "extraResources": [
-      {
- 	"from": "python", "to": "python"
-      }
+      { "from": "python", "to": "python" },
+      { "from": "python-venv", "to": "python-venv" }
     ],
-    
     "win": {
       "target": "nsis",
       "icon": "assets/icons/icon.ico"
