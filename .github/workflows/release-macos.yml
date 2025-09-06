@@ -1,0 +1,75 @@
+name: release-macos
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS (${{ matrix.label }} • ${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14   # Apple Silicon runner
+            arch: arm64
+            label: macOS 14 (arm64)
+          - runner: macos-13   # Intel runner
+            arch: x64
+            label: macOS 13 (x64)
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer/bundles
+        run: npm run build
+
+      # Make builds as general as possible: **no code signing, no notarization** required.
+      - name: Disable macOS code-sign and notarization
+        run: |
+          echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> $GITHUB_ENV
+          echo "APPLE_TEAM_ID=
+          APPLE_ID=APPLE_APP_SPECIFIC_PASSWORD=" >> $GITHUB_ENV
+
+      - name: Build & publish macOS artifacts (unsigned)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create unsigned DMG + ZIP for each architecture and publish to the GitHub Release for this tag
+          npx electron-builder --mac dmg zip --${{ matrix.arch }} --publish always
+
+      # Always upload artifacts, even if publishing succeeded, so you have them in the workflow run.
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-${{ matrix.arch }}-artifacts
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.blockmap
+            release/*.dmg
+            release/*.zip
+
+  finalize:
+    needs: [build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "macOS unsigned builds completed for arm64 and x64. Assets are attached to the tag's Release and to this workflow run as artifacts."
