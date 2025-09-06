@@ -96,8 +96,7 @@ After downloading, you’ll find the installers in your **Downloads** folder (or
 
 Available for:
 - **Windows** → `.exe` installer  
-- **Linux** → `.AppImage` and `.deb`  
-- **macOS** → `.dmg`  
+- **Linux** → `.AppImage` and `.deb`   
 
 👉 If you build installers yourself using `npm run dist`, they will be created in the local **`dist/`** folder of this project.
 
