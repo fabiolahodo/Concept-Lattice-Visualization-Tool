@@ -109,6 +109,10 @@ body {
   min-width: 44px;                   /* attributes can be very narrow */
 }
 
+.gridjs-tr.selected-row > td { outline: 2px solid rgba(0,0,0,.18); outline-offset: -2px; }
+.gridjs-th.selected-col, .gridjs-td.selected-col { background: rgba(0,0,0,.04); }
+
+
 /* Let header text expand to the pixel width we set in JS */
 .gridjs-th, 
 .gridjs-th-content { 
