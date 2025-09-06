@@ -2,47 +2,59 @@ name: Release (Linux)
 
 on:
   push:
-    tags:
-      - "v*-linux"   # e.g. v1.0.2-linux
+    tags: ["v*-linux"]   # e.g. v1.0.4-linux
+  workflow_dispatch: {}  # allow manual runs
 
 permissions:
-  contents: write    # REQUIRED for creating/uploading releases
+  contents: write        # needed to create/update releases
 
 jobs:
-  linux:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install deps
+      - name: Install system deps (venv)
+        run: sudo apt-get update && sudo apt-get install -y python3-venv
+
+      - name: Install npm deps
         run: npm ci
 
       - name: Build renderer
         run: npm run build
 
-      - name: Build Linux installers (AppImage + .deb)
-        run: npx electron-builder --linux AppImage deb
+      # Build a Python venv that includes 'concepts' and ship it with the app
+      - name: Build Python venv
+        run: |
+          python3 -m venv python-venv
+          ./python-venv/bin/pip install --upgrade pip
+          ./python-venv/bin/pip install concepts
 
-      - name: List artifacts (debug)
-        run: ls -lah release || true
+      - name: Package (no auto-publish)
+        run: npx electron-builder --linux AppImage deb --publish=never
 
-      # Use a release action that can CREATE or UPDATE safely
-      - name: Create/Update GitHub Release (attach Linux assets)
+      - name: List artifacts
+        run: ls -lh release || true
+
+      - name: Create / Update GitHub Release (attach artifacts)
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.ref_name }}            # e.g. v1.0.2-linux
-          name: "Lattice ${{ github.ref_name }}" # title shown on Releases
+          tag: ${{ github.ref_name }}                 # e.g. v1.0.4-linux
+          name: "Lattice ${{ github.ref_name }}"
+          allowUpdates: true
+          replacesArtifacts: true
           draft: false
           prerelease: false
-          allowUpdates: true                     # <-- important
-          replacesArtifacts: true                # <-- replace assets if they exist
-          token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: |
             release/*.AppImage
             release/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
